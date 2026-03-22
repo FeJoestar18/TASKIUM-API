@@ -2,7 +2,7 @@ package com.taskium.project.Infrastructure.Config;
 
 import com.taskium.project.Domain.Entity.Role;
 import com.taskium.project.Domain.Enums.RoleName;
-import com.taskium.project.Infrastructure.Repository.RoleRepository;
+import com.taskium.project.Infrastructure.Repository.JPA.RoleJpaRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,13 +11,13 @@ import org.springframework.context.annotation.Configuration;
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initRoles(RoleRepository roleRepository) {
+    CommandLineRunner initRoles(RoleJpaRepository roleJpaRepository) {
         return args -> {
 
             for (RoleName roleName : RoleName.values()) {
 
-                roleRepository.findByName(roleName)
-                        .orElseGet(() -> roleRepository.save(
+                roleJpaRepository.findByName(roleName)
+                        .orElseGet(() -> roleJpaRepository.save(
                                 Role.builder()
                                         .name(roleName)
                                         .description(roleName.name() + " role")

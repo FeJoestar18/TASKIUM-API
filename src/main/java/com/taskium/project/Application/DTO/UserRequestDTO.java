@@ -1,5 +1,6 @@
 package com.taskium.project.Application.DTO;
 
+import com.taskium.project.Domain.Enums.RoleName;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -9,7 +10,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 public class UserRequestDTO {
 
     private String name;
@@ -17,8 +17,10 @@ public class UserRequestDTO {
     private String cpf;
     private String password;
     private Long roleId;
-    private String PhoneNumber;
-    private LocalDate Birthday;
-    private String ReservedEmail;
-    private String ReservedPhoneNumber;
+    private String phoneNumber;
+    private LocalDate birthday;
+    private String reservedEmail;
+    private String reservedPhoneNumber;
+    private RoleName roleName;
+
 }

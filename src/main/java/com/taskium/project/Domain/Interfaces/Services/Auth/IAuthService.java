@@ -6,5 +6,4 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import javax.management.relation.RoleNotFoundException;
 
 public interface IAuthService extends UserDetailsService {
-    void registerUser(UserRequestDTO dto) throws RoleNotFoundException;
 }
