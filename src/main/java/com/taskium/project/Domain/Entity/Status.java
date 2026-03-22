@@ -1,27 +1,23 @@
 package com.taskium.project.Domain.Entity;
 
-import com.taskium.project.Domain.Enums.RoleName;
 import com.taskium.project.Infrastructure.Persistence.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 
-@Entity
-@Table(name = "roles")
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Role extends BaseEntity {
+@Table(name = "status")
+@Entity
+public class Status extends BaseEntity {
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false, unique = true, length = 50)
-    private RoleName name;
+    private String name;
 
     @Column(name = "description", nullable = false, length = 200)
     private String description;
-
-    @ManyToOne
-    @JoinColumn(name = "permission_id")
-    private Permission permission;
 }

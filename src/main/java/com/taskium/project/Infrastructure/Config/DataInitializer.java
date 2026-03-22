@@ -20,6 +20,7 @@ public class DataInitializer {
                         .orElseGet(() -> roleRepository.save(
                                 Role.builder()
                                         .name(roleName)
+                                        .description(roleName.name() + " role")
                                         .build()
                         ));
             }

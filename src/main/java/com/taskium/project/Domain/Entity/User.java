@@ -1,16 +1,14 @@
 package com.taskium.project.Domain.Entity;
 
+import com.taskium.project.Infrastructure.Persistence.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
 
-import static com.taskium.project.Domain.Enums.RoleName.ADMIN;
-import static com.taskium.project.Domain.Enums.RoleName.MANAGER;
 
 @Getter
 @Setter
@@ -19,34 +17,33 @@ import static com.taskium.project.Domain.Enums.RoleName.MANAGER;
 @Builder
 @Table(name = "users")
 @Entity
+public class User extends BaseEntity implements org.springframework.security.core.userdetails.UserDetails {
 
-public class User implements UserDetails {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
-
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "cpf", nullable = false, unique = true)
+    @Column(name = "cpf", nullable = false, unique = true, length = 14)
     private String cpf;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = true)
-    private Role role;
+    @Column(name = "phone_number", nullable = false, length = 15)
+    private String phoneNumber;
 
+    @OneToOne(mappedBy = "user")
+    private com.taskium.project.Domain.Entity.UserDetails userDetail;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (this.userDetail == null || this.userDetail.getRole() == null) {
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
 
-        return switch (this.role.getName()) {
+        return switch (this.userDetail.getRole().getName()) {
             case ADMIN -> List.of(
                     new SimpleGrantedAuthority("ROLE_ADMIN"),
                     new SimpleGrantedAuthority("ROLE_USER")
