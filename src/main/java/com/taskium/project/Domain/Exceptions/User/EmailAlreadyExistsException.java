@@ -1,4 +1,4 @@
-package com.taskium.project.Domain.Exceptions.Auth;
+package com.taskium.project.Domain.Exceptions.User;
 
 public class EmailAlreadyExistsException extends RuntimeException {
 

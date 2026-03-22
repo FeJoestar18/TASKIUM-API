@@ -1,9 +1,9 @@
 package com.taskium.project.Infrastructure.Exceptions;
 
-import com.taskium.project.Domain.Exceptions.Auth.CpflAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.Auth.EmailAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.Auth.PhoneNumberAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.Auth.RoleNotFoundException;
+import com.taskium.project.Domain.Exceptions.User.CpflAlreadyExistsException;
+import com.taskium.project.Domain.Exceptions.User.EmailAlreadyExistsException;
+import com.taskium.project.Domain.Exceptions.User.PhoneNumberAlreadyExistsException;
+import com.taskium.project.Domain.Exceptions.User.RoleNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
