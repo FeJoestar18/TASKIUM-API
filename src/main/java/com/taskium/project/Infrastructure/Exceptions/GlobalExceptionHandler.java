@@ -3,8 +3,7 @@ package com.taskium.project.Infrastructure.Exceptions;
 import com.taskium.project.Domain.Exceptions.Auth.CpflAlreadyExistsException;
 import com.taskium.project.Domain.Exceptions.Auth.EmailAlreadyExistsException;
 import com.taskium.project.Domain.Exceptions.Auth.PhoneNumberAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.Auth.RoleNotFound;
-import org.springframework.http.HttpStatus;
+import com.taskium.project.Domain.Exceptions.Auth.RoleNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +25,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(409).body(ex.getMessage());
     }
 
-    @ExceptionHandler(RoleNotFound.class)
-    public ResponseEntity<?> handleRoleNotFound(RoleNotFound ex) {
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<?> handleRoleNotFound(RoleNotFoundException ex) {
         return ResponseEntity.status(404).body(ex.getMessage());
     }
 
