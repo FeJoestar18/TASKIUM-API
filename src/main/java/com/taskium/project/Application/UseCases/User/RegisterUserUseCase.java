@@ -7,6 +7,7 @@ import com.taskium.project.Domain.Interfaces.Repository.IUserDetailsRepository;
 import com.taskium.project.Domain.Interfaces.Repository.IUserRepository;
 import com.taskium.project.Domain.Interfaces.Services.User.IUserService;
 
+import com.taskium.project.Domain.Validators.User.UserValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,23 +18,27 @@ public class RegisterUserUseCase {
     private final IRoleRepository roleRepository;
     private final IUserDetailsRepository userDetailsRepository;
     private final IUserService userService;
+    private UserValidator userValidator;
+
 
     public RegisterUserUseCase(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
             IUserDetailsRepository userDetailsRepository,
-            IUserService userService
+            IUserService userService,
+            UserValidator userValidator
     ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.userService = userService;
+        this.userValidator = userValidator;
     }
 
     @Transactional
     public void execute(UserRequestDTO dto){
 
-        userService.validateUserUniqueness(dto);
+        userValidator.validateUserUniqueness(dto);
 
         var user = userService.createUser(dto);
         userRepository.save(user);

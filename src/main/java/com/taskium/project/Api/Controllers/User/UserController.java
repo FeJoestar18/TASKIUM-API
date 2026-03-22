@@ -2,6 +2,7 @@ package com.taskium.project.Api.Controllers.User;
 
 import com.taskium.project.Application.DTO.UserRequestDTO;
 import com.taskium.project.Application.UseCases.User.RegisterUserUseCase;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> register(@RequestBody UserRequestDTO dto) {
+    public ResponseEntity<String> register(@Valid @RequestBody UserRequestDTO dto) {
 
         registerUserUseCase.execute(dto);
 

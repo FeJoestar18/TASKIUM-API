@@ -8,5 +8,4 @@ import com.taskium.project.Domain.Entity.UserDetails;
 public interface IUserService {
      User createUser(UserRequestDTO userRequestDTO);
      UserDetails createUserDetails(User user, Role role, UserRequestDTO userRequestDTO);
-     void validateUserUniqueness(UserRequestDTO userRequestDTO);
 }

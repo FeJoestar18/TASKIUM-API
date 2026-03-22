@@ -4,9 +4,6 @@ import com.taskium.project.Application.DTO.UserRequestDTO;
 import com.taskium.project.Domain.Entity.Role;
 import com.taskium.project.Domain.Entity.User;
 import com.taskium.project.Domain.Entity.UserDetails;
-import com.taskium.project.Domain.Exceptions.User.CpflAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.User.EmailAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.User.PhoneNumberAlreadyExistsException;
 import com.taskium.project.Domain.Interfaces.Repository.IUserRepository;
 import com.taskium.project.Domain.Interfaces.Services.User.IUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,20 +42,5 @@ public class UserService implements IUserService {
                 .reservedEmail(dto.getReservedEmail())
                 .reservedPhoneNumber(dto.getReservedPhoneNumber())
                 .build();
-    }
-
-    @Override
-    public void validateUserUniqueness(UserRequestDTO dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new EmailAlreadyExistsException();
-        }
-
-        if (userRepository.existsByCpf(dto.getCpf())) {
-            throw new CpflAlreadyExistsException();
-        }
-
-        if (userRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
-            throw new PhoneNumberAlreadyExistsException();
-        }
     }
 }

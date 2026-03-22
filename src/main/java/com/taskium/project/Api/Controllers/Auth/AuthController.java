@@ -3,6 +3,7 @@ package com.taskium.project.Api.Controllers.Auth;
 import com.taskium.project.Application.DTO.AuthDTO;
 import com.taskium.project.Application.DTO.LoginResponseDTO;
 import com.taskium.project.Application.UseCases.Auth.LoginUseCase;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,7 +21,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Validated AuthDTO authDTO) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody @Validated AuthDTO authDTO) {
 
         var response = loginUseCase.execute(authDTO);
 
