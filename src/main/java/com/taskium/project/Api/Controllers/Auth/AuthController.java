@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import javax.management.relation.RoleNotFoundException;
 
 @RestController
 @RequestMapping("auth")
@@ -50,7 +51,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO dto) {
+    public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO dto) throws RoleNotFoundException {
         authService.registerUser(dto);
 
         return ResponseEntity.ok("Registro realizado com sucesso");
