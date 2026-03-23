@@ -2,7 +2,7 @@ package com.taskium.project.Application.UseCases.Auth;
 
 import com.taskium.project.Application.DTO.AuthDTO;
 import com.taskium.project.Application.DTO.LoginResponseDTO;
-import com.taskium.project.Domain.Entity.User;
+import com.taskium.project.Infrastructure.Security.AuthenticatedUserDetails;
 import com.taskium.project.Infrastructure.Security.TokenGenerateService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,9 +30,9 @@ public class LoginUseCase {
 
         var auth = authenticationManager.authenticate(usernamePassword);
 
-        User user = (User) auth.getPrincipal();
+        var authenticatedUser = (AuthenticatedUserDetails) auth.getPrincipal();
 
-        var token = tokenGenerateService.generateToken(user);
+        var token = tokenGenerateService.generateToken(authenticatedUser.getDomainUser());
 
         return new LoginResponseDTO(token);
     }

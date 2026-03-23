@@ -1,6 +1,7 @@
 package com.taskium.project.Api.Controllers.User;
 
 import com.taskium.project.Application.DTO.UserRequestDTO;
+import com.taskium.project.Application.DTO.UserResponseDTO;
 import com.taskium.project.Application.UseCases.User.RegisterUserUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,10 +19,10 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> register(@Valid @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO dto) {
 
-        registerUserUseCase.execute(dto);
+        var response = registerUserUseCase.execute(dto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Usuário registrado com sucesso");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

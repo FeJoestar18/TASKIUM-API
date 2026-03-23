@@ -6,7 +6,6 @@ import com.taskium.project.Application.UseCases.Auth.LoginUseCase;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,7 +20,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody @Validated AuthDTO authDTO) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody AuthDTO authDTO) {
 
         var response = loginUseCase.execute(authDTO);
 
