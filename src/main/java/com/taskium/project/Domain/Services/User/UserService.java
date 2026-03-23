@@ -9,6 +9,8 @@ import com.taskium.project.Domain.Interfaces.Services.User.IUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService implements IUserService {
     private final IUserRepository userRepository;
@@ -43,4 +45,10 @@ public class UserService implements IUserService {
                 .reservedPhoneNumber(dto.getReservedPhoneNumber())
                 .build();
     }
+
+    @Override
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
+    }
+
 }

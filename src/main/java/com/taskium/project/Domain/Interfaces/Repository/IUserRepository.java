@@ -9,6 +9,7 @@ public interface IUserRepository {
     boolean existsByCpf(String cpf);
     boolean existsByPhoneNumber(String phone);
     Optional<User> findByEmail(String email);
+    Optional<User>  findById(Long id);
     User save(User user);
 
 }
