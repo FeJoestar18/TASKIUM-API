@@ -21,6 +21,15 @@ Desenvolvido por **Felipe Amaro**.
 
 ---
 
+## 🔗 Repositórios Auxiliares
+
+| Repositório | Descrição |
+|-------------|-----------|
+| [TaskIUM-Architecture](https://github.com/FeJoestar18/TaskIUM-Architecture) | Documentação e diagramas da arquitetura do projeto |
+| [TaskIUM-Database](https://github.com/FeJoestar18/TaskIUM-Database) | Modelagem e scripts do banco de dados |
+
+---
+
 ## 📋 Sobre o Projeto
 
 O **Taskium** é uma API REST completa para gerenciamento de tarefas corporativas, projetada para suportar múltiplos papéis de usuário (Admin, Manager, User) com controle de acesso granular via JWT. O sistema permite a criação e gestão de usuários, tarefas, eventos, conquistas, notificações e muito mais.
@@ -40,9 +49,9 @@ O **Taskium** é uma API REST completa para gerenciamento de tarefas corporativa
 
 ## 🏗️ Arquitetura — Clean Architecture
 
-O projeto segue a **Clean Architecture** (Arquitetura Limpa), proposta por Robert C. Martin (Uncle Bob). O objetivo é criar um sistema com **baixo acoplamento**, **alta coesão** e que seja **independente de frameworks, banco de dados e interfaces externas**.
+### O que é?
 
-A regra fundamental é a **Regra de Dependência**: as camadas internas **nunca** conhecem as camadas externas. O fluxo de dependência sempre aponta para dentro.
+O projeto segue a **Clean Architecture** (Arquitetura Limpa), proposta por Robert C. Martin (Uncle Bob). É um padrão arquitetural que organiza o código em **camadas concêntricas**, onde cada camada tem uma responsabilidade bem definida e as dependências sempre apontam **de fora para dentro**.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -60,26 +69,110 @@ A regra fundamental é a **Regra de Dependência**: as camadas internas **nunca*
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Fluxo de uma Requisição
+### Por que Clean Architecture?
+
+Em projetos tradicionais (MVC simples, por exemplo), é comum que as regras de negócio fiquem espalhadas entre controllers, services e repositórios, tudo misturado com código de framework. Conforme o projeto cresce, isso gera problemas:
+
+- **Acoplamento alto** — mudar o banco de dados, framework ou biblioteca obriga a mexer em dezenas de arquivos.
+- **Testes difíceis** — testar uma regra de negócio exige subir banco, contexto do Spring, etc.
+- **Manutenção cara** — qualquer alteração pequena tem efeito cascata imprevisível.
+
+A Clean Architecture resolve isso com uma regra simples:
+
+> **Regra de Dependência**: as camadas internas **nunca** conhecem as camadas externas. O domínio não sabe que o Spring existe. Não sabe que o banco é MySQL. Não sabe que a API é REST.
+
+Na prática, isso significa que:
+
+| Situação | O que muda | O que **não** precisa mudar |
+|----------|------------|----------------------------|
+| Trocar MySQL por MongoDB | Apenas os Adapters na Infrastructure | Domain, Application e Api |
+| Trocar REST por GraphQL | Apenas a camada Api (Controllers) | Domain, Application e Infrastructure |
+| Adicionar nova regra de negócio | Domain e Application | Infrastructure e Api |
+| Trocar JWT por OAuth2 | Apenas Security na Infrastructure | Domain e Application |
+
+### Como funciona na prática — Inversão de Dependência
+
+O ponto-chave da arquitetura é a **inversão de dependência**. O Domain define **interfaces** (contratos) e a Infrastructure fornece as **implementações concretas**.
+
+Exemplo real do projeto — o fluxo de persistência de um usuário:
 
 ```
-HTTP Request
+  Domain define o contrato:                Infrastructure implementa:
+  ┌──────────────────────┐                 ┌───────────────────────────┐
+  │  IUserRepository     │ ◄── implements ─│  UserRepositoryImpl       │
+  │  ─────────────────── │                 │  ────────────────────────  │
+  │  + save(User)        │                 │  delega para ──▶ UserJpaRepository
+  │  + findByEmail(...)  │                 │                 (Spring Data JPA)
+  │  + existsByEmail(..) │                 │                      │
+  └──────────────────────┘                 └──────────────────────│────┘
+                                                                  ▼
+                                                               MySQL
+```
+
+O `RegisterUserUseCase` (Application) usa `IUserRepository` (Domain) — uma **interface**. Ele não sabe e não precisa saber que por trás existe um `UserJpaRepository` do Spring Data acessando MySQL. Se amanhã o banco mudar para MongoDB, basta criar um novo Adapter — o UseCase e o Domain **permanecem intactos**.
+
+### Fluxo completo de uma requisição
+
+```
+HTTP Request  ──▶  POST /users  (JSON body)
     │
     ▼
-Controller (Api) ──▶ UseCase (Application) ──▶ Service (Domain)
-                                │                     │
-                                ▼                     ▼
-                            Validator            Interface (Domain)
-                            (Domain)                  │
-                                                      ▼
-                                              Adapter/Impl (Infrastructure)
+┌─ API ─────────────────────────────────────────────────────────┐
+│  UserController                                                │
+│  Recebe o request, valida o JSON (@Valid) e delega ao UseCase │
+└───────────────────────────────┬────────────────────────────────┘
+                                │
+                                ▼
+┌─ APPLICATION ─────────────────────────────────────────────────┐
+│  RegisterUserUseCase.execute(dto)                              │
+│  1. Chama UserValidator (Domain) → valida unicidade            │
+│  2. Chama UserService (Domain)  → constrói entidade User       │
+│  3. Chama IUserRepository       → persiste no banco            │
+│  4. Chama IRoleRepository       → busca a Role                 │
+│  5. Chama UserService           → constrói UserDetails         │
+│  6. Chama IUserDetailsRepository→ persiste detalhes            │
+│  7. Retorna UserResponseDTO                                    │
+└───────────────────────────────┬────────────────────────────────┘
+                                │
+          ┌─────────────────────┼─────────────────────┐
+          ▼                     ▼                     ▼
+┌─ DOMAIN ──────────┐ ┌─ DOMAIN ──────────┐ ┌─ DOMAIN ──────────┐
+│  UserValidator     │ │  UserService      │ │  IUserRepository   │
+│  Verifica se email,│ │  Constrói User e  │ │  (interface)       │
+│  CPF e telefone    │ │  UserDetails com  │ │  Contrato que a    │
+│  já existem        │ │  dados do DTO     │ │  Infra implementa  │
+└────────────────────┘ └───────────────────┘ └────────┬───────────┘
                                                       │
                                                       ▼
-                                                JPA Repository
-                                                      │
-                                                      ▼
-                                                   MySQL
+                                    ┌─ INFRASTRUCTURE ─────────────┐
+                                    │  UserRepositoryImpl (Adapter) │
+                                    │  Delega para UserJpaRepository│
+                                    │  que faz o SQL real no MySQL  │
+                                    └──────────────────────────────┘
 ```
+
+### Por que não usar MVC simples?
+
+O MVC é um padrão válido, mas **não escala bem em complexidade**. Veja a comparação:
+
+| Critério | MVC Tradicional | Clean Architecture (Taskium) |
+|----------|-----------------|------------------------------|
+| **Regras de negócio** | Misturadas nos Services (que dependem do Spring) | Isoladas no Domain, sem dependência de framework |
+| **Testabilidade** | Precisa do contexto do Spring para testar | Domain e UseCases testáveis com JUnit puro (sem Spring) |
+| **Troca de banco** | Mexe em Services, Repositories e às vezes Controllers | Mexe **apenas** nos Adapters da Infrastructure |
+| **Troca de framework** | Reescreve quase tudo | Domain e Application permanecem iguais |
+| **Organização em equipe** | Um dev pode quebrar o fluxo inteiro sem perceber | Camadas bem definidas — cada dev sabe onde mexer |
+| **Crescimento do projeto** | Tende a virar "big ball of mud" | Cresce de forma organizada e previsível |
+
+### Os princípios por trás da escolha
+
+A Clean Architecture neste projeto aplica diretamente os **5 princípios SOLID**:
+
+- **S — Single Responsibility**: Cada UseCase faz uma coisa só (`LoginUseCase` autentica, `RegisterUserUseCase` registra). Cada Service tem um propósito claro.
+- **O — Open/Closed**: Para adicionar um novo caso de uso (ex: `DeleteUserUseCase`), basta criar uma nova classe — nenhum código existente precisa mudar.
+- **L — Liskov Substitution**: `UserRepositoryImpl` implementa `IUserRepository` e pode ser substituído por qualquer outra implementação sem quebrar nada.
+- **I — Interface Segregation**: Interfaces pequenas e específicas por contexto (`IUserRepository`, `IRoleRepository`, `IUserService`) em vez de uma interface gigante.
+- **D — Dependency Inversion**: Domain e Application dependem de **abstrações** (interfaces). A Infrastructure fornece as implementações. O Spring resolve tudo via injeção de dependência.
 
 ---
 
@@ -198,61 +291,7 @@ src/main/java/com/taskium/project/
 
 ---
 
-##  Design Patterns Utilizados
-
-### 1.  Clean Architecture
-Separação em 4 camadas com regra de dependência unidirecional (de fora para dentro). O domínio é puro e não conhece frameworks.
-
-### 2.  Repository Pattern + Adapter Pattern
-O domínio define **interfaces** (`IUserRepository`, `IRoleRepository`) e a infraestrutura fornece **implementações concretas** via Adapters (`UserRepositoryImpl`) que delegam para os repositórios JPA do Spring Data.
-
-```
-Domain:         IUserRepository (interface)
-                        ▲
-                        │ implements
-Infrastructure: UserRepositoryImpl (adapter) ──▶ UserJpaRepository (Spring Data)
-```
-
-> **Por que?** O domínio nunca depende do Spring Data diretamente. Se amanhã trocar o banco de dados (ex: MongoDB), basta criar um novo Adapter — o domínio permanece intacto.
-
-### 3. Use Case Pattern
-Cada operação de negócio é encapsulada em uma classe dedicada com um único método `execute()`:
-- `LoginUseCase` — orquestra autenticação e geração de token
-- `RegisterUserUseCase` — orquestra validação, criação e persistência de um novo usuário
-
-> **Por que?** Responsabilidade única (SRP). Cada Use Case tem uma razão para mudar. Facilita testes e manutenção.
-
-### 4.  DTO Pattern (Data Transfer Object)
-Objetos dedicados para transportar dados entre camadas, desacoplando a representação HTTP das entidades do domínio:
-- `AuthDTO` / `LoginResponseDTO` — fluxo de login
-- `UserRequestDTO` / `UserResponseDTO` — fluxo de registro
-- `ErrorResponseDTO` — resposta padronizada de erros
-
-### 5.  Builder Pattern
-Utilizado via Lombok `@Builder` em todas as entidades e DTOs, proporcionando criação fluente e legível de objetos complexos.
-
-```java
-User.builder()
-    .name("Felipe")
-    .email("felipe@email.com")
-    .build();
-```
-
-### 6.  Dependency Inversion Principle (DIP)
-Módulos de alto nível (Domain, Application) dependem de **abstrações** (interfaces), não de implementações concretas. A injeção de dependência do Spring resolve as implementações em runtime.
-
-### 7. Filter Chain Pattern
-O `SecurityFilter` intercepta todas as requisições HTTP para validar o token JWT antes de chegar aos controllers, seguindo o padrão de cadeia de filtros do Servlet.
-
-### 8. Strategy Pattern
-O `AuthenticatedUserDetails` utiliza um `switch` sobre o `RoleName` para definir as authorities do Spring Security, aplicando diferentes estratégias de permissão conforme o papel do usuário.
-
-### 9. Template Method Pattern
-A `BaseEntity` define o esqueleto comum (`id`, `createdAt`, `updatedAt`) que todas as entidades herdam, garantindo consistência de auditoria.
-
----
-
-##  Tutorial — Para Que Serve Cada Camada
+## 📚 Tutorial — Para Que Serve Cada Camada
 
 ### 🌐 Camada `Api` — Interface do Mundo Externo
 
@@ -464,17 +503,6 @@ src/test/java/com/taskium/project/
 
 ---
 
-## 📐 Princípios SOLID Aplicados
-
-| Princípio | Aplicação no Projeto |
-|-----------|---------------------|
-| **S** — Single Responsibility | Cada UseCase tem uma única responsabilidade (`LoginUseCase`, `RegisterUserUseCase`) |
-| **O** — Open/Closed | Novas funcionalidades são adicionadas criando novos UseCases/Services sem alterar os existentes |
-| **L** — Liskov Substitution | `UserRepositoryImpl` substitui `IUserRepository` sem efeitos colaterais |
-| **I** — Interface Segregation | Interfaces específicas por contexto (`IUserRepository`, `IRoleRepository`, `IUserService`) |
-| **D** — Dependency Inversion | Domain depende de abstrações (interfaces); Infrastructure fornece implementações |
-
----
 
 ##  Licença
 
