@@ -1,9 +1,9 @@
-package com.taskium.project.Domain.Validators.User;
+package com.taskium.project.Domain.Common.Validators;
 
 import com.taskium.project.Application.DTO.UserRequestDTO;
-import com.taskium.project.Domain.Exceptions.User.CpflAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.User.EmailAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.User.PhoneNumberAlreadyExistsException;
+import com.taskium.project.Domain.Common.Exceptions.CpflAlreadyExistsException;
+import com.taskium.project.Domain.Common.Exceptions.EmailAlreadyExistsException;
+import com.taskium.project.Domain.Common.Exceptions.PhoneNumberAlreadyExistsException;
 import com.taskium.project.Domain.Interfaces.Repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

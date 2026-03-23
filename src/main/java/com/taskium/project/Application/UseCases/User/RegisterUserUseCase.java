@@ -2,13 +2,13 @@ package com.taskium.project.Application.UseCases.User;
 
 import com.taskium.project.Application.DTO.UserRequestDTO;
 import com.taskium.project.Application.DTO.UserResponseDTO;
-import com.taskium.project.Domain.Exceptions.User.RoleNotFoundException;
+import com.taskium.project.Domain.Common.Exceptions.RoleNotFoundException;
 import com.taskium.project.Domain.Interfaces.Repository.IRoleRepository;
 import com.taskium.project.Domain.Interfaces.Repository.IUserDetailsRepository;
 import com.taskium.project.Domain.Interfaces.Repository.IUserRepository;
 import com.taskium.project.Domain.Interfaces.Services.User.IUserService;
 
-import com.taskium.project.Domain.Validators.User.UserValidator;
+import com.taskium.project.Domain.Common.Validators.UserValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

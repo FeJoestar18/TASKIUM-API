@@ -1,10 +1,10 @@
 package com.taskium.project.Infrastructure.Exceptions;
 
 import com.taskium.project.Application.DTO.ErrorResponseDTO;
-import com.taskium.project.Domain.Exceptions.User.CpflAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.User.EmailAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.User.PhoneNumberAlreadyExistsException;
-import com.taskium.project.Domain.Exceptions.User.RoleNotFoundException;
+import com.taskium.project.Domain.Common.Exceptions.CpflAlreadyExistsException;
+import com.taskium.project.Domain.Common.Exceptions.EmailAlreadyExistsException;
+import com.taskium.project.Domain.Common.Exceptions.PhoneNumberAlreadyExistsException;
+import com.taskium.project.Domain.Common.Exceptions.RoleNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
