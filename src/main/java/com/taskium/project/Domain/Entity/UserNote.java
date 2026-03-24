@@ -9,7 +9,12 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "user_notes")
+@Table(
+        name = "user_notes",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_user_note_note_id", columnNames = {"note_id"})
+        }
+)
 @Entity
 public class UserNote extends BaseEntity {
 
@@ -21,4 +26,3 @@ public class UserNote extends BaseEntity {
     @JoinColumn(name = "note_id", nullable = false)
     private Note note;
 }
-

@@ -1,8 +1,13 @@
 package com.taskium.project.Infrastructure.Exceptions;
 
 import com.taskium.project.Application.DTO.Common.ErrorResponseDTO;
+import com.taskium.project.Domain.Common.Exceptions.Comment.CommentNotFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Comment.NoCommentsFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Common.CpflAlreadyExistsException;
 import com.taskium.project.Domain.Common.Exceptions.Common.EmailAlreadyExistsException;
+import com.taskium.project.Domain.Common.Exceptions.Note.NoNotesFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Note.NoteNotFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Note.UnauthorizedNoteAccessException;
 import com.taskium.project.Domain.Common.Exceptions.Regulation.InactiveRegulationException;
 import com.taskium.project.Domain.Common.Exceptions.Regulation.NoAcceptedRegulationsFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Regulation.NoRegulationsFoundException;
@@ -118,7 +123,11 @@ public class GlobalExceptionHandler {
             TaskCategoryNotFoundException.class,
             NoTaskCategoriesFoundException.class,
             TaskStatusNotFoundException.class,
-            NoTaskStatusesFoundException.class
+            NoTaskStatusesFoundException.class,
+            NoteNotFoundException.class,
+            NoNotesFoundException.class,
+            CommentNotFoundException.class,
+            NoCommentsFoundException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleNotFound(
             RuntimeException ex,
@@ -135,7 +144,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({
-            UnauthorizedActionException.class
+            UnauthorizedActionException.class,
+            UnauthorizedNoteAccessException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleForbidden(
             RuntimeException ex,
