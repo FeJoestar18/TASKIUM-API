@@ -1,6 +1,7 @@
 package com.taskium.project.Application.UseCases.User;
 
 import com.taskium.project.Application.DTO.UserGetResponseDTO;
+import com.taskium.project.Domain.Common.Exceptions.NoUsersFoundException;
 import com.taskium.project.Domain.Interfaces.Services.User.IUserService;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +19,11 @@ public class GetAllUsersUseCase {
     }
 
     public List<UserGetResponseDTO> execute() {
-
-        return userService.getAllUsers().stream()
+        var users = userService.getAllUsers();
+        if (users.isEmpty()) {
+            throw new NoUsersFoundException();
+        }
+        return users.stream()
                 .map(user -> UserGetResponseDTO.builder()
                         .id(user.getId())
                         .name(user.getName())
@@ -30,4 +34,3 @@ public class GetAllUsersUseCase {
                 .toList();
     }
 }
-

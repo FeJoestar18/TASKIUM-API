@@ -3,6 +3,7 @@ package com.taskium.project.Infrastructure.Exceptions;
 import com.taskium.project.Application.DTO.ErrorResponseDTO;
 import com.taskium.project.Domain.Common.Exceptions.CpflAlreadyExistsException;
 import com.taskium.project.Domain.Common.Exceptions.EmailAlreadyExistsException;
+import com.taskium.project.Domain.Common.Exceptions.NoUsersFoundException;
 import com.taskium.project.Domain.Common.Exceptions.PhoneNumberAlreadyExistsException;
 import com.taskium.project.Domain.Common.Exceptions.RoleNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.UserNotFoundException;
@@ -94,7 +95,8 @@ public class GlobalExceptionHandler {
     //  NOT FOUND (404)
     @ExceptionHandler({
             RoleNotFoundException.class,
-            UserNotFoundException.class
+            UserNotFoundException.class,
+            NoUsersFoundException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleNotFound(
             RuntimeException ex,
