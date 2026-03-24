@@ -1,8 +1,8 @@
 package com.taskium.project.Application.UseCases.User;
 
-import com.taskium.project.Application.DTO.UserRequestDTO;
-import com.taskium.project.Application.DTO.UserResponseDTO;
-import com.taskium.project.Domain.Common.Exceptions.RoleNotFoundException;
+import com.taskium.project.Application.DTO.User.UserRequestDTO;
+import com.taskium.project.Application.DTO.User.UserResponseDTO;
+import com.taskium.project.Domain.Common.Exceptions.Role.RoleNotFoundException;
 import com.taskium.project.Domain.Interfaces.Repository.IRoleRepository;
 import com.taskium.project.Domain.Interfaces.Repository.IUserDetailsRepository;
 import com.taskium.project.Domain.Interfaces.Repository.IUserRepository;

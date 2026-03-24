@@ -1,6 +1,6 @@
 package com.taskium.project.Domain.Interfaces.Services.User;
 
-import com.taskium.project.Application.DTO.UserRequestDTO;
+import com.taskium.project.Application.DTO.User.UserRequestDTO;
 import com.taskium.project.Domain.Entity.Role;
 import com.taskium.project.Domain.Entity.User;
 import com.taskium.project.Domain.Entity.UserDetails;

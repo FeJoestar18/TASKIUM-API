@@ -4,7 +4,6 @@ import com.taskium.project.Infrastructure.Persistence.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import javax.management.relation.Relation;
 
 @Getter
 @Setter

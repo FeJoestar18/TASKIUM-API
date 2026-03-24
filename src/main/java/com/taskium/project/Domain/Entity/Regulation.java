@@ -6,8 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,19 +15,15 @@ import java.time.LocalDate;
 @Entity
 public class Regulation extends BaseEntity {
 
-    @Column(name = "name", nullable = false, length = 100)
-    private String name;
+    @Column(name = "title", nullable = false, length = 150)
+    private String title;
 
-    @Column(name = "pdf", nullable = false, length = 255)
-    private String pdf;
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    private String content;
 
-    @Column(name = "version", length = 20)
-    private String version;
+    @Column(name = "version", nullable = false)
+    private Integer version;
 
-    @Column(name = "active")
-    private Boolean active;
-
-    @Column(name = "effective_date", nullable = false)
-    private LocalDate effectiveDate;
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 }
-

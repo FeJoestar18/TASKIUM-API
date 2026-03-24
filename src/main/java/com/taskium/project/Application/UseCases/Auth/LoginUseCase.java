@@ -1,7 +1,7 @@
 package com.taskium.project.Application.UseCases.Auth;
 
-import com.taskium.project.Application.DTO.AuthDTO;
-import com.taskium.project.Application.DTO.LoginResponseDTO;
+import com.taskium.project.Application.DTO.Auth.AuthDTO;
+import com.taskium.project.Application.DTO.Auth.LoginResponseDTO;
 import com.taskium.project.Infrastructure.Security.AuthenticatedUserDetails;
 import com.taskium.project.Infrastructure.Security.TokenGenerateService;
 import org.springframework.security.authentication.AuthenticationManager;

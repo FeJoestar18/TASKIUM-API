@@ -51,6 +51,11 @@ public class UserRepositoryImpl implements IUserRepository {
     public void deleteById(Long id) { userJpaRepository.deleteById(id); }
 
     @Override
+    public boolean existsById(Long id) {
+        return userJpaRepository.existsById(id);
+    }
+
+    @Override
     public List<User> findAll() {
         return userJpaRepository.findAll();
     }

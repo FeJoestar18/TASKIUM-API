@@ -1,7 +1,7 @@
 package com.taskium.project.Domain.Services.User;
 
-import com.taskium.project.Application.DTO.UserRequestDTO;
-import com.taskium.project.Domain.Common.Exceptions.UserNotFoundException;
+import com.taskium.project.Application.DTO.User.UserRequestDTO;
+import com.taskium.project.Domain.Common.Exceptions.User.UserNotFoundException;
 import com.taskium.project.Domain.Entity.Role;
 import com.taskium.project.Domain.Entity.User;
 import com.taskium.project.Domain.Entity.UserDetails;
@@ -59,6 +59,11 @@ public class UserService implements IUserService {
 
     @Override
     public void deleteUserById(Long id) {
+
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException(id);
+        }
+
         userRepository.deleteById(id);
     }
 

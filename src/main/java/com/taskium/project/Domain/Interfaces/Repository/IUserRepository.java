@@ -1,7 +1,6 @@
 package com.taskium.project.Domain.Interfaces.Repository;
 
 import com.taskium.project.Domain.Entity.User;
-import com.taskium.project.Domain.Entity.UserDetails;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,5 +13,6 @@ public interface IUserRepository {
     Optional<User>  findById(Long id);
     User save(User user);
     void deleteById(Long id);
+    boolean existsById(Long id);
     List<User> findAll();
 }

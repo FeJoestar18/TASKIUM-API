@@ -1,8 +1,8 @@
 package com.taskium.project.Api.Controllers.User;
 
-import com.taskium.project.Application.DTO.UserGetResponseDTO;
-import com.taskium.project.Application.DTO.UserRequestDTO;
-import com.taskium.project.Application.DTO.UserResponseDTO;
+import com.taskium.project.Application.DTO.User.UserGetResponseDTO;
+import com.taskium.project.Application.DTO.User.UserRequestDTO;
+import com.taskium.project.Application.DTO.User.UserResponseDTO;
 import com.taskium.project.Application.UseCases.User.DeleteByIdUseCase;
 import com.taskium.project.Application.UseCases.User.GetAllUsersUseCase;
 import com.taskium.project.Application.UseCases.User.GetUserByIdUseCase;
@@ -39,7 +39,7 @@ public class UserController {
         this.updateUserUseCase = updateUserUseCase;
     }
 
-    @PostMapping("register")
+    @PostMapping
     public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO dto) {
 
         var response = registerUserUseCase.execute(dto);
@@ -47,31 +47,31 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("get/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<UserGetResponseDTO> getById(@PathVariable Long id) {
 
         return ResponseEntity.ok(getUserByIdUseCase.execute(id));
     }
 
-    @GetMapping("get")
+    @GetMapping
     public ResponseEntity<List<UserGetResponseDTO>> getAll() {
 
         return ResponseEntity.ok(getAllUsersUseCase.execute());
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
 
         deleteByIdUseCase.execute(id);
 
-        return ResponseEntity.ok("User deleted successfully");
+        return ResponseEntity.ok("Usuário deletado com sucesso");
     }
 
-    @PutMapping("update/{id}")
-    public ResponseEntity<Void> updateById(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<UserGetResponseDTO> updateById(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
 
-        updateUserUseCase.execute(id, dto);
+        var response = updateUserUseCase.execute(id, dto);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(response);
     }
 }
