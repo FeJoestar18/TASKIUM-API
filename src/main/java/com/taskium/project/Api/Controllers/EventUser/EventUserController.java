@@ -11,6 +11,7 @@ import com.taskium.project.Application.UseCases.EventUser.UpdateEventUserPartici
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +41,7 @@ public class EventUserController {
     }
 
     @PostMapping("/events/{eventId}/users")
+    @PreAuthorize("hasAuthority('JOIN_EVENT')")
     public ResponseEntity<EventUserResponseDTO> addUserToEvent(
             @PathVariable Long eventId,
             @Valid @RequestBody AddUserToEventRequestDTO dto,
@@ -50,6 +52,7 @@ public class EventUserController {
     }
 
     @DeleteMapping("/events/{eventId}/users/{userId}")
+    @PreAuthorize("hasAuthority('MANAGE_EVENT_USERS')")
     public ResponseEntity<Void> removeUserFromEvent(
             @PathVariable Long eventId,
             @PathVariable Long userId,
@@ -60,6 +63,7 @@ public class EventUserController {
     }
 
     @PutMapping("/events/{eventId}/users/{userId}/status")
+    @PreAuthorize("hasAuthority('MANAGE_EVENT_USERS')")
     public ResponseEntity<EventUserResponseDTO> updateParticipationStatus(
             @PathVariable Long eventId,
             @PathVariable Long userId,
@@ -70,6 +74,7 @@ public class EventUserController {
     }
 
     @GetMapping("/events/{eventId}/users")
+    @PreAuthorize("hasAuthority('VIEW_EVENT')")
     public ResponseEntity<List<EventUserResponseDTO>> getUsersByEvent(
             @PathVariable Long eventId,
             Authentication authentication
@@ -78,6 +83,7 @@ public class EventUserController {
     }
 
     @GetMapping("/users/{userId}/events")
+    @PreAuthorize("hasAuthority('VIEW_EVENT')")
     public ResponseEntity<List<EventUserResponseDTO>> getEventsByUser(
             @PathVariable Long userId,
             Authentication authentication

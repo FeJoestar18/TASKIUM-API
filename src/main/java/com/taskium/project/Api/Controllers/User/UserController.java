@@ -11,6 +11,7 @@ import com.taskium.project.Application.UseCases.User.UpdateUserUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,18 +49,21 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('VIEW_USER')")
     public ResponseEntity<UserGetResponseDTO> getById(@PathVariable Long id) {
 
         return ResponseEntity.ok(getUserByIdUseCase.execute(id));
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('MANAGE_USERS')")
     public ResponseEntity<List<UserGetResponseDTO>> getAll() {
 
         return ResponseEntity.ok(getAllUsersUseCase.execute());
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_USER')")
     public ResponseEntity<String> delete(@PathVariable Long id) {
 
         deleteByIdUseCase.execute(id);
@@ -68,6 +72,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
     public ResponseEntity<UserGetResponseDTO> updateById(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
 
         var response = updateUserUseCase.execute(id, dto);

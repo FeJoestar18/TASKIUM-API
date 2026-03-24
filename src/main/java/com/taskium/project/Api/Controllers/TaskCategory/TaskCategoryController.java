@@ -9,6 +9,7 @@ import com.taskium.project.Application.UseCases.TaskCategory.UpdateTaskCategoryU
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class TaskCategoryController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_TASK_CATEGORY')")
     public ResponseEntity<TaskCategoryResponseDTO> create(@Valid @RequestBody TaskCategoryRequestDTO dto) {
 
         var response = createTaskCategoryUseCase.execute(dto);
@@ -43,6 +45,7 @@ public class TaskCategoryController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_TASK_CATEGORY')")
     public ResponseEntity<TaskCategoryResponseDTO> updateById(@PathVariable Long id, @Valid @RequestBody TaskCategoryRequestDTO dto) {
 
         var response = updateTaskCategoryUseCase.execute(id, dto);
@@ -51,6 +54,7 @@ public class TaskCategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_TASK_CATEGORY')")
     public ResponseEntity<String> deleteById(@PathVariable Long id) {
 
         deleteTaskCategoryByIdUseCase.execute(id);
@@ -59,6 +63,7 @@ public class TaskCategoryController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('VIEW_TASK_CATEGORY')")
     public ResponseEntity<List<TaskCategoryResponseDTO>> getAll() {
 
         return ResponseEntity.ok(getAllTaskCategoriesUseCase.execute());

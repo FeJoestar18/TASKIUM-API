@@ -9,6 +9,7 @@ import com.taskium.project.Application.UseCases.Comment.GetCommentsByUserUseCase
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,7 @@ public class CommentController {
     }
 
     @PostMapping("/tasks/{taskId}/comments")
+    @PreAuthorize("hasAuthority('CREATE_COMMENT')")
     public ResponseEntity<CommentResponseDTO> create(
             @PathVariable Long taskId,
             @Valid @RequestBody CreateCommentRequestDTO dto,
@@ -47,6 +49,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/comments/{id}")
+    @PreAuthorize("hasAuthority('DELETE_COMMENT')")
     public ResponseEntity<String> deleteById(
             @PathVariable Long id,
             Authentication authentication
@@ -58,15 +61,16 @@ public class CommentController {
     }
 
     @GetMapping("/tasks/{taskId}/comments")
+    @PreAuthorize("hasAuthority('VIEW_COMMENT')")
     public ResponseEntity<List<CommentResponseDTO>> getByTask(@PathVariable Long taskId) {
 
         return ResponseEntity.ok(getCommentsByTaskUseCase.execute(taskId));
     }
 
     @GetMapping("/users/{userId}/comments")
+    @PreAuthorize("hasAuthority('VIEW_COMMENT')")
     public ResponseEntity<List<CommentResponseDTO>> getByUser(@PathVariable Long userId) {
 
         return ResponseEntity.ok(getCommentsByUserUseCase.execute(userId));
     }
 }
-

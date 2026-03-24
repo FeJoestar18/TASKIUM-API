@@ -12,6 +12,7 @@ import com.taskium.project.Application.UseCases.UserRegulation.AcceptRegulationU
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,32 +46,38 @@ public class RegulationController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_REGULATION')")
     public ResponseEntity<RegulationResponseDTO> create(@Valid @RequestBody RegulationRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(createRegulationUseCase.execute(dto));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_REGULATION')")
     public ResponseEntity<RegulationResponseDTO> update(@PathVariable Long id, @Valid @RequestBody RegulationRequestDTO dto) {
         return ResponseEntity.ok(updateRegulationByIdUseCase.execute(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_REGULATION')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         deleteRegulationByIdUseCase.execute(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('VIEW_REGULATION')")
     public ResponseEntity<List<RegulationResponseDTO>> getAll() {
         return ResponseEntity.ok(getAllRegulationsUseCase.execute());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('VIEW_REGULATION')")
     public ResponseEntity<RegulationResponseDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(getRegulationByIdUseCase.execute(id));
     }
 
     @PostMapping("/{id}/accept")
+    @PreAuthorize("hasAuthority('ACCEPT_REGULATION')")
     public ResponseEntity<UserRegulationResponseDTO> accept(@PathVariable Long id, Authentication authentication) {
         return ResponseEntity.status(HttpStatus.CREATED).body(acceptRegulationUseCase.execute(id, authentication.getName()));
     }

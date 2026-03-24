@@ -13,6 +13,7 @@ import com.taskium.project.Application.UseCases.Note.UpdateNoteByIdUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,6 +46,7 @@ public class NoteController {
     }
 
     @PostMapping("/notes")
+    @PreAuthorize("hasAuthority('CREATE_NOTE')")
     public ResponseEntity<NoteResponseDTO> create(
             @Valid @RequestBody CreateNoteRequestDTO dto,
             Authentication authentication
@@ -54,6 +56,7 @@ public class NoteController {
     }
 
     @PutMapping("/notes/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_NOTE')")
     public ResponseEntity<NoteResponseDTO> updateById(
             @PathVariable Long id,
             @Valid @RequestBody UpdateNoteRequestDTO dto,
@@ -63,6 +66,7 @@ public class NoteController {
     }
 
     @DeleteMapping("/notes/{id}")
+    @PreAuthorize("hasAuthority('DELETE_NOTE')")
     public ResponseEntity<Void> deleteById(
             @PathVariable Long id,
             Authentication authentication
@@ -72,11 +76,13 @@ public class NoteController {
     }
 
     @GetMapping("/notes")
+    @PreAuthorize("hasAuthority('VIEW_NOTE')")
     public ResponseEntity<List<NoteListResponseDTO>> getAll(Authentication authentication) {
         return ResponseEntity.ok(getAllNotesUseCase.execute(authentication.getName()));
     }
 
     @GetMapping("/notes/{id}")
+    @PreAuthorize("hasAuthority('VIEW_NOTE')")
     public ResponseEntity<NoteResponseDTO> getById(
             @PathVariable Long id,
             Authentication authentication
@@ -85,6 +91,7 @@ public class NoteController {
     }
 
     @GetMapping("/users/{userId}/notes")
+    @PreAuthorize("hasAuthority('VIEW_NOTE')")
     public ResponseEntity<List<NoteListResponseDTO>> getByUserId(
             @PathVariable Long userId,
             Authentication authentication

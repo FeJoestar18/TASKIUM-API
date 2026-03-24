@@ -9,6 +9,7 @@ import com.taskium.project.Application.UseCases.TaskStatus.UpdateTaskStatusUseCa
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class TaskStatusController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_TASK_STATUS')")
     public ResponseEntity<TaskStatusResponseDTO> create(@Valid @RequestBody TaskStatusRequestDTO dto) {
 
         var response = createTaskStatusUseCase.execute(dto);
@@ -43,6 +45,7 @@ public class TaskStatusController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_TASK_STATUS')")
     public ResponseEntity<TaskStatusResponseDTO> updateById(@PathVariable Long id, @Valid @RequestBody TaskStatusRequestDTO dto) {
 
         var response = updateTaskStatusUseCase.execute(id, dto);
@@ -51,6 +54,7 @@ public class TaskStatusController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_TASK_STATUS')")
     public ResponseEntity<String> deleteById(@PathVariable Long id) {
 
         deleteTaskStatusByIdUseCase.execute(id);
@@ -59,6 +63,7 @@ public class TaskStatusController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('VIEW_TASK_STATUS')")
     public ResponseEntity<List<TaskStatusResponseDTO>> getAll() {
 
         return ResponseEntity.ok(getAllTaskStatusesUseCase.execute());

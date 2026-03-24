@@ -30,6 +30,8 @@ import com.taskium.project.Domain.Common.Exceptions.Role.RoleNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.TaskCategory.TaskCategoryNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Task.TaskNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.TaskStatus.TaskStatusNotFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Auth.AccessDeniedException;
+import com.taskium.project.Domain.Common.Exceptions.Auth.InvalidTokenException;
 import com.taskium.project.Domain.Common.Exceptions.Auth.UnauthorizedActionException;
 import com.taskium.project.Domain.Common.Exceptions.User.UserNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Event.UnauthorizedEventActionException;
@@ -95,6 +97,38 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getRequestURI(),
                 violations
+        );
+    }
+
+    //  UNAUTHORIZED (401)
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidToken(
+            InvalidTokenException ex,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.UNAUTHORIZED,
+                "Token inválido",
+                ex.getMessage(),
+                request.getRequestURI(),
+                Map.of()
+        );
+    }
+
+    //  FORBIDDEN (403)
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAccessDenied(
+            AccessDeniedException ex,
+            HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "Acesso negado",
+                ex.getMessage(),
+                request.getRequestURI(),
+                Map.of()
         );
     }
 

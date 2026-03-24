@@ -5,6 +5,7 @@ import com.taskium.project.Application.DTO.UserRegulation.UserRegulationStatusRe
 import com.taskium.project.Application.UseCases.UserRegulation.GetAcceptedRegulationsByUserUseCase;
 import com.taskium.project.Application.UseCases.UserRegulation.VerifyUserAcceptedRegulationUseCase;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class UserRegulationController {
     }
 
     @GetMapping("/{userId}/regulations")
+    @PreAuthorize("hasAuthority('VIEW_REGULATION')")
     public ResponseEntity<List<UserRegulationResponseDTO>> getAcceptedByUser(
             @PathVariable Long userId,
             Authentication authentication
@@ -34,6 +36,7 @@ public class UserRegulationController {
     }
 
     @GetMapping("/{userId}/regulations/{regulationId}/status")
+    @PreAuthorize("hasAuthority('VIEW_REGULATION')")
     public ResponseEntity<UserRegulationStatusResponseDTO> hasAccepted(
             @PathVariable Long userId,
             @PathVariable Long regulationId,

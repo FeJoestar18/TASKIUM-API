@@ -9,6 +9,7 @@ import com.taskium.project.Application.UseCases.ParticipationStatus.UpdatePartic
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,22 +36,26 @@ public class ParticipationStatusController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_PARTICIPATION_STATUS')")
     public ResponseEntity<ParticipationStatusResponseDTO> create(@Valid @RequestBody ParticipationStatusRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(createParticipationStatusUseCase.execute(dto));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_PARTICIPATION_STATUS')")
     public ResponseEntity<ParticipationStatusResponseDTO> update(@PathVariable Long id, @Valid @RequestBody ParticipationStatusRequestDTO dto) {
         return ResponseEntity.ok(updateParticipationStatusUseCase.execute(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_PARTICIPATION_STATUS')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         deleteParticipationStatusUseCase.execute(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('VIEW_PARTICIPATION_STATUS')")
     public ResponseEntity<List<ParticipationStatusResponseDTO>> getAll() {
         return ResponseEntity.ok(getAllParticipationStatusesUseCase.execute());
     }

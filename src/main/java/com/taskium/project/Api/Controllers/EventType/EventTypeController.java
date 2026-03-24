@@ -9,6 +9,7 @@ import com.taskium.project.Application.UseCases.EventType.UpdateEventTypeUseCase
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,22 +36,26 @@ public class EventTypeController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_EVENT_TYPE')")
     public ResponseEntity<EventTypeResponseDTO> create(@Valid @RequestBody EventTypeRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(createEventTypeUseCase.execute(dto));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_EVENT_TYPE')")
     public ResponseEntity<EventTypeResponseDTO> update(@PathVariable Long id, @Valid @RequestBody EventTypeRequestDTO dto) {
         return ResponseEntity.ok(updateEventTypeUseCase.execute(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_EVENT_TYPE')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         deleteEventTypeUseCase.execute(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('VIEW_EVENT_TYPE')")
     public ResponseEntity<List<EventTypeResponseDTO>> getAll() {
         return ResponseEntity.ok(getAllEventTypesUseCase.execute());
     }
