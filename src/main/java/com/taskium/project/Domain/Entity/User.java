@@ -4,6 +4,8 @@ import com.taskium.project.Infrastructure.Persistence.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import javax.management.relation.Relation;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -30,4 +32,5 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user")
     private com.taskium.project.Domain.Entity.UserDetails userDetail;
+
 }

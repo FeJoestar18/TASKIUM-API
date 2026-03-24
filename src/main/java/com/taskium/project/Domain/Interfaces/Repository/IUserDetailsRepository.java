@@ -1,6 +1,5 @@
 package com.taskium.project.Domain.Interfaces.Repository;
 
-import com.taskium.project.Domain.Entity.User;
 import com.taskium.project.Domain.Entity.UserDetails;
 
 import java.util.Optional;

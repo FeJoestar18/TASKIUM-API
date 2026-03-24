@@ -31,6 +31,10 @@ public class Task extends BaseEntity {
     @JoinColumn(name = "task_status_id")
     private TaskStatus taskStatus;
 
+    @OneToOne
+    @JoinColumn(name = "task_category_id")
+    private TaskCategory taskCategory;
+
     @ManyToOne
     @JoinColumn(name = "created_by")
     private User createdBy;

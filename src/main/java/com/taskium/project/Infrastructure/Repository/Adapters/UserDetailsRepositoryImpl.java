@@ -1,6 +1,5 @@
 package com.taskium.project.Infrastructure.Repository.Adapters;
 
-import com.taskium.project.Domain.Entity.User;
 import com.taskium.project.Domain.Entity.UserDetails;
 import com.taskium.project.Domain.Interfaces.Repository.IUserDetailsRepository;
 import com.taskium.project.Infrastructure.Repository.JPA.UserDetailsJpaRepository;
@@ -26,5 +25,6 @@ public class UserDetailsRepositoryImpl implements IUserDetailsRepository {
     public UserDetails save(UserDetails userDetails) {
         return jpaRepository.save(userDetails);
     }
+
 
 }
