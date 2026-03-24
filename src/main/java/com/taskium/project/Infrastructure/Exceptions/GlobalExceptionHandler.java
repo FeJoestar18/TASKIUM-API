@@ -5,9 +5,17 @@ import com.taskium.project.Domain.Common.Exceptions.Comment.CommentNotFoundExcep
 import com.taskium.project.Domain.Common.Exceptions.Comment.NoCommentsFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Common.CpflAlreadyExistsException;
 import com.taskium.project.Domain.Common.Exceptions.Common.EmailAlreadyExistsException;
+import com.taskium.project.Domain.Common.Exceptions.Event.EventDateInvalidException;
+import com.taskium.project.Domain.Common.Exceptions.Event.EventNotFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Event.EventTypeNotFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Event.EventUserNotFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Event.NoEventsFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Event.NoEventTypesFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Note.NoNotesFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Note.NoteNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Note.UnauthorizedNoteAccessException;
+import com.taskium.project.Domain.Common.Exceptions.Event.NoParticipationStatusesFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Event.ParticipationStatusNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Regulation.InactiveRegulationException;
 import com.taskium.project.Domain.Common.Exceptions.Regulation.NoAcceptedRegulationsFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Regulation.NoRegulationsFoundException;
@@ -24,6 +32,8 @@ import com.taskium.project.Domain.Common.Exceptions.Task.TaskNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.TaskStatus.TaskStatusNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Auth.UnauthorizedActionException;
 import com.taskium.project.Domain.Common.Exceptions.User.UserNotFoundException;
+import com.taskium.project.Domain.Common.Exceptions.Event.UnauthorizedEventActionException;
+import com.taskium.project.Domain.Common.Exceptions.Event.UserAlreadyInEventException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -94,7 +104,8 @@ public class GlobalExceptionHandler {
             EmailAlreadyExistsException.class,
             CpflAlreadyExistsException.class,
             PhoneNumberAlreadyExistsException.class,
-            RegulationAlreadyAcceptedException.class
+            RegulationAlreadyAcceptedException.class,
+            UserAlreadyInEventException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleConflict(
             RuntimeException ex,
@@ -118,6 +129,13 @@ public class GlobalExceptionHandler {
             RegulationNotFoundException.class,
             NoRegulationsFoundException.class,
             NoAcceptedRegulationsFoundException.class,
+            EventNotFoundException.class,
+            NoEventsFoundException.class,
+            EventTypeNotFoundException.class,
+            NoEventTypesFoundException.class,
+            ParticipationStatusNotFoundException.class,
+            NoParticipationStatusesFoundException.class,
+            EventUserNotFoundException.class,
             TaskNotFoundException.class,
             NoTasksFoundException.class,
             TaskCategoryNotFoundException.class,
@@ -145,7 +163,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             UnauthorizedActionException.class,
-            UnauthorizedNoteAccessException.class
+            UnauthorizedNoteAccessException.class,
+            UnauthorizedEventActionException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleForbidden(
             RuntimeException ex,
@@ -161,7 +180,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({
-            InactiveRegulationException.class
+            InactiveRegulationException.class,
+            EventDateInvalidException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleBusinessRule(
             RuntimeException ex,

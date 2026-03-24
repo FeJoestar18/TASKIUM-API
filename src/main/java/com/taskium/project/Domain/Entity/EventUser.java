@@ -9,7 +9,16 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "event_users")
+@Table(
+        name = "event_users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_event_user", columnNames = {"user_id", "event_id"})
+        },
+        indexes = {
+                @Index(name = "idx_event_users_event_id", columnList = "event_id"),
+                @Index(name = "idx_event_users_user_id", columnList = "user_id")
+        }
+)
 @Entity
 public class EventUser extends BaseEntity {
 
@@ -21,7 +30,7 @@ public class EventUser extends BaseEntity {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    @Column(name = "participation_status", length = 20)
-    private String participationStatus;
+    @ManyToOne
+    @JoinColumn(name = "participation_status_id", nullable = false)
+    private ParticipationStatus participationStatus;
 }
-

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,8 +23,8 @@ public class Event extends BaseEntity {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
@@ -34,7 +35,10 @@ public class Event extends BaseEntity {
     @Column(name = "location", length = 100)
     private String location;
 
-    @Column(name = "event_type", length = 50)
-    private String eventType;
-}
+    @ManyToOne
+    @JoinColumn(name = "event_type_id", nullable = false)
+    private EventType eventType;
 
+    @OneToMany(mappedBy = "event")
+    private List<EventUser> participants;
+}
