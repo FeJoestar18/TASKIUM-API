@@ -1,17 +1,12 @@
 package com.taskium.project.Api.Controllers.User;
 
-import com.taskium.project.Application.DTO.User.UserGetResponseDTO;
-import com.taskium.project.Application.DTO.User.UserRequestDTO;
-import com.taskium.project.Application.DTO.User.UserResponseDTO;
-import com.taskium.project.Application.UseCases.User.DeleteByIdUseCase;
-import com.taskium.project.Application.UseCases.User.GetAllUsersUseCase;
-import com.taskium.project.Application.UseCases.User.GetUserByIdUseCase;
-import com.taskium.project.Application.UseCases.User.RegisterUserUseCase;
-import com.taskium.project.Application.UseCases.User.UpdateUserUseCase;
+import com.taskium.project.Application.DTO.User.*;
+import com.taskium.project.Application.UseCases.User.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,19 +20,22 @@ public class UserController {
     private final GetAllUsersUseCase getAllUsersUseCase;
     private final DeleteByIdUseCase deleteByIdUseCase;
     private final UpdateUserUseCase updateUserUseCase;
+    private final CompleteRegisterUseCase completeRegisterUseCase;
 
     public UserController(
             RegisterUserUseCase registerUserUseCase,
             GetUserByIdUseCase getUserByIdUseCase,
             GetAllUsersUseCase getAllUsersUseCase,
             DeleteByIdUseCase deleteByIdUseCase,
-            UpdateUserUseCase updateUserUseCase
+            UpdateUserUseCase updateUserUseCase,
+            CompleteRegisterUseCase completeRegisterUseCase
     ) {
         this.registerUserUseCase = registerUserUseCase;
         this.getUserByIdUseCase = getUserByIdUseCase;
         this.getAllUsersUseCase = getAllUsersUseCase;
         this.deleteByIdUseCase = deleteByIdUseCase;
         this.updateUserUseCase = updateUserUseCase;
+        this.completeRegisterUseCase = completeRegisterUseCase;
     }
 
     @PostMapping
@@ -46,6 +44,17 @@ public class UserController {
         var response = registerUserUseCase.execute(dto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/{id}/complete-register")
+    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    public ResponseEntity<UserCompleteResponseDTO> completeRegister(
+            @PathVariable Long id,
+            @Valid @RequestBody CompleteRegisterRequestDTO dto,
+            Authentication authentication
+    ) {
+        var response = completeRegisterUseCase.execute(id, authentication.getName(), dto);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

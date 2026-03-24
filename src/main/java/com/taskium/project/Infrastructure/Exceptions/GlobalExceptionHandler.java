@@ -33,6 +33,7 @@ import com.taskium.project.Domain.Common.Exceptions.TaskStatus.TaskStatusNotFoun
 import com.taskium.project.Domain.Common.Exceptions.Auth.AccessDeniedException;
 import com.taskium.project.Domain.Common.Exceptions.Auth.InvalidTokenException;
 import com.taskium.project.Domain.Common.Exceptions.Auth.UnauthorizedActionException;
+import com.taskium.project.Domain.Common.Exceptions.Status.StatusNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.User.UserNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Event.UnauthorizedEventActionException;
 import com.taskium.project.Domain.Common.Exceptions.Event.UserAlreadyInEventException;
@@ -179,7 +180,8 @@ public class GlobalExceptionHandler {
             NoteNotFoundException.class,
             NoNotesFoundException.class,
             CommentNotFoundException.class,
-            NoCommentsFoundException.class
+            NoCommentsFoundException.class,
+            StatusNotFoundException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleNotFound(
             RuntimeException ex,

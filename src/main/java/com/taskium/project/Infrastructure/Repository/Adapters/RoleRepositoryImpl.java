@@ -20,4 +20,9 @@ public class RoleRepositoryImpl implements IRoleRepository {
     public Optional<Role> findByName(RoleName name) {
         return roleJpaRepository.findByName(name);
     }
+
+    @Override
+    public Optional<Role> findById(Long id) {
+        return roleJpaRepository.findById(id);
+    }
 }
