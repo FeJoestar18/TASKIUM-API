@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public class PermissionRepositoryImpl implements IPermissionRepository {
@@ -23,6 +24,11 @@ public class PermissionRepositoryImpl implements IPermissionRepository {
     }
 
     @Override
+    public Optional<Permission> findById(Long id) {
+        return permissionJpaRepository.findById(id);
+    }
+
+    @Override
     public Permission save(Permission permission) {
         return permissionJpaRepository.save(permission);
     }
@@ -30,6 +36,16 @@ public class PermissionRepositoryImpl implements IPermissionRepository {
     @Override
     public List<Permission> findAll() {
         return permissionJpaRepository.findAll();
+    }
+
+    @Override
+    public Set<Permission> findAllByIdIn(Set<Long> ids) {
+        return permissionJpaRepository.findAllByIdIn(ids);
+    }
+
+    @Override
+    public boolean existsByName(String name) {
+        return permissionJpaRepository.existsByName(name);
     }
 }
 
