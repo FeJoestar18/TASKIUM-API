@@ -1,6 +1,5 @@
 package com.taskium.project.Domain.Services.User;
 
-import com.taskium.project.Application.DTO.User.UserRequestDTO;
 import com.taskium.project.Domain.Common.Exceptions.User.UserNotFoundException;
 import com.taskium.project.Domain.Entity.Role;
 import com.taskium.project.Domain.Entity.User;
@@ -11,6 +10,7 @@ import com.taskium.project.Domain.Interfaces.Services.User.IUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,24 +31,24 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User createUser(UserRequestDTO dto) {
+    public User createUser(String name, String email, String cpf, String phoneNumber, String password) {
         return User.builder()
-                .name(dto.getName())
-                .email(dto.getEmail())
-                .cpf(dto.getCpf())
-                .phoneNumber(dto.getPhoneNumber())
-                .password(passwordEncoder.encode(dto.getPassword()))
+                .name(name)
+                .email(email)
+                .cpf(cpf)
+                .phoneNumber(phoneNumber)
+                .password(passwordEncoder.encode(password))
                 .build();
     }
 
     @Override
-    public UserDetails createUserDetails(User user, Role role, UserRequestDTO dto) {
+    public UserDetails createUserDetails(User user, Role role, LocalDate birthday, String reservedEmail, String reservedPhoneNumber) {
         return UserDetails.builder()
                 .user(user)
                 .role(role)
-                .birthday(dto.getBirthday())
-                .reservedEmail(dto.getReservedEmail())
-                .reservedPhoneNumber(dto.getReservedPhoneNumber())
+                .birthday(birthday)
+                .reservedEmail(reservedEmail)
+                .reservedPhoneNumber(reservedPhoneNumber)
                 .build();
     }
 
@@ -59,36 +59,31 @@ public class UserService implements IUserService {
 
     @Override
     public void deleteUserById(Long id) {
-
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException(id);
         }
-
-        userRepository.deleteById(id);
     }
 
     @Override
-    public User updateUserById(Long id, UserRequestDTO userRequestDTO) {
+    public User updateUserById(Long id, String name, String email, String cpf, String phoneNumber, String password) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
-        user.setName(userRequestDTO.getName());
-        user.setEmail(userRequestDTO.getEmail());
-        user.setCpf(userRequestDTO.getCpf());
-        user.setPhoneNumber(userRequestDTO.getPhoneNumber());
+        user.setName(name);
+        user.setEmail(email);
+        user.setCpf(cpf);
+        user.setPhoneNumber(phoneNumber);
 
-        if (userRequestDTO.getPassword() != null && !userRequestDTO.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+        if (password != null && !password.isBlank()) {
+            user.setPassword(passwordEncoder.encode(password));
         }
-
-        userRepository.save(user);
 
         return user;
     }
 
     @Override
-    public UserDetails updateUserDetailsById(Long id, Role role, UserRequestDTO userRequestDTO) {
+    public UserDetails updateUserDetailsById(Long id, Role role, LocalDate birthday, String reservedEmail, String reservedPhoneNumber) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -99,15 +94,14 @@ public class UserService implements IUserService {
         if (userDetails == null) {
             userDetails = new UserDetails();
             userDetails.setUser(user);
+            user.setUserDetail(userDetails);
         }
 
         userDetails.setRole(role);
-        userDetails.setBirthday(userRequestDTO.getBirthday());
-        userDetails.setReservedEmail(userRequestDTO.getReservedEmail());
-        userDetails.setReservedPhoneNumber(userRequestDTO.getReservedPhoneNumber());
+        userDetails.setBirthday(birthday);
+        userDetails.setReservedEmail(reservedEmail);
+        userDetails.setReservedPhoneNumber(reservedPhoneNumber);
 
-        userDetailsRepository.save(userDetails);
-        
         return userDetails;
     }
 

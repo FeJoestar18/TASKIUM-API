@@ -1,6 +1,5 @@
 package com.taskium.project.Domain.Common.Validators;
 
-import com.taskium.project.Application.DTO.User.UserRequestDTO;
 import com.taskium.project.Domain.Common.Exceptions.Common.CpflAlreadyExistsException;
 import com.taskium.project.Domain.Common.Exceptions.Common.EmailAlreadyExistsException;
 import com.taskium.project.Domain.Common.Exceptions.Common.PhoneNumberAlreadyExistsException;
@@ -14,16 +13,28 @@ public class UserValidator {
 
     private final IUserRepository userRepository;
 
-    public void validateUserUniqueness(UserRequestDTO dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
+    public void validateUserUniqueness(String email, String cpf, String phoneNumber, Long currentUserId) {
+        boolean emailExists = currentUserId == null 
+                ? userRepository.existsByEmail(email) 
+                : userRepository.existsByEmailAndIdNot(email, currentUserId);
+        
+        if (emailExists) {
             throw new EmailAlreadyExistsException();
         }
 
-        if (userRepository.existsByCpf(dto.getCpf())) {
+        boolean cpfExists = currentUserId == null 
+                ? userRepository.existsByCpf(cpf) 
+                : userRepository.existsByCpfAndIdNot(cpf, currentUserId);
+
+        if (cpfExists) {
             throw new CpflAlreadyExistsException();
         }
 
-        if (userRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
+        boolean phoneExists = currentUserId == null 
+                ? userRepository.existsByPhoneNumber(phoneNumber) 
+                : userRepository.existsByPhoneNumberAndIdNot(phoneNumber, currentUserId);
+
+        if (phoneExists) {
             throw new PhoneNumberAlreadyExistsException();
         }
     }

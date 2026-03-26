@@ -1,7 +1,5 @@
 package com.taskium.project.Domain.Services.Event;
 
-import com.taskium.project.Application.DTO.Event.CreateEventRequestDTO;
-import com.taskium.project.Application.DTO.Event.UpdateEventRequestDTO;
 import com.taskium.project.Domain.Common.Exceptions.Event.EventNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Event.EventTypeNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Event.NoEventsFoundException;
@@ -16,6 +14,7 @@ import com.taskium.project.Domain.Interfaces.Repository.IUserRepository;
 import com.taskium.project.Domain.Interfaces.Services.Event.IEventService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -39,48 +38,47 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public Event createEvent(CreateEventRequestDTO dto, String authenticatedEmail) {
+    public Event createEvent(String name, String description, LocalDateTime startDate, LocalDateTime endDate, String location, Long eventTypeId, String authenticatedEmail) {
         User authenticatedUser = findUserByEmail(authenticatedEmail);
-        EventType eventType = findEventTypeById(dto.getEventTypeId());
-        eventValidator.validateDateRange(dto.getStartDate(), dto.getEndDate());
+        EventType eventType = findEventTypeById(eventTypeId);
+        eventValidator.validateDateRange(startDate, endDate);
 
         Event event = Event.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .location(dto.getLocation())
+                .name(name)
+                .description(description)
+                .startDate(startDate)
+                .endDate(endDate)
+                .location(location)
                 .createdBy(authenticatedUser)
                 .eventType(eventType)
                 .build();
 
-        return eventRepository.save(event);
+        return event;
     }
 
     @Override
-    public Event updateEvent(Long id, UpdateEventRequestDTO dto, String authenticatedEmail) {
+    public Event updateEvent(Long id, String name, String description, LocalDateTime startDate, LocalDateTime endDate, String location, Long eventTypeId, String authenticatedEmail) {
         User authenticatedUser = findUserByEmail(authenticatedEmail);
         Event event = findEventById(id);
         eventValidator.validateCreatorOwnership(event.getCreatedBy().getId(), authenticatedUser.getId());
-        EventType eventType = findEventTypeById(dto.getEventTypeId());
-        eventValidator.validateDateRange(dto.getStartDate(), dto.getEndDate());
+        EventType eventType = findEventTypeById(eventTypeId);
+        eventValidator.validateDateRange(startDate, endDate);
 
-        event.setName(dto.getName());
-        event.setDescription(dto.getDescription());
-        event.setStartDate(dto.getStartDate());
-        event.setEndDate(dto.getEndDate());
-        event.setLocation(dto.getLocation());
+        event.setName(name);
+        event.setDescription(description);
+        event.setStartDate(startDate);
+        event.setEndDate(endDate);
+        event.setLocation(location);
         event.setEventType(eventType);
 
-        return eventRepository.save(event);
+        return event;
     }
 
     @Override
-    public void deleteEvent(Long id, String authenticatedEmail) {
+    public void validateEventDeletion(Long id, String authenticatedEmail) {
         User authenticatedUser = findUserByEmail(authenticatedEmail);
         Event event = findEventById(id);
         eventValidator.validateCreatorOwnership(event.getCreatedBy().getId(), authenticatedUser.getId());
-        eventRepository.deleteById(id);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.taskium.project.Domain.Services.Note;
 
-import com.taskium.project.Application.DTO.Note.CreateNoteRequestDTO;
-import com.taskium.project.Application.DTO.Note.UpdateNoteRequestDTO;
 import com.taskium.project.Domain.Common.Exceptions.Note.NoNotesFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Note.NoteNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.User.UserNotFoundException;
@@ -38,49 +36,33 @@ public class NoteService implements INoteService {
     }
 
     @Override
-    public Note createNote(CreateNoteRequestDTO dto, String authenticatedEmail) {
-        User user = findUserByEmail(authenticatedEmail);
-
-        Note note = noteRepository.save(
-                Note.builder()
-                        .name(dto.getName())
-                        .description(dto.getDescription())
-                        .note(dto.getNote())
-                        .build()
-        );
-
-        userNoteRepository.save(
-                UserNote.builder()
-                        .user(user)
-                        .note(note)
-                        .build()
-        );
-
-        return note;
+    public Note createNote(String name, String description, String noteContent) {
+        return Note.builder()
+                .name(name)
+                .description(description)
+                .note(noteContent)
+                .build();
     }
 
     @Override
-    public Note updateNoteById(Long id, UpdateNoteRequestDTO dto, String authenticatedEmail) {
+    public Note updateNoteById(Long id, String name, String description, String noteContent, String authenticatedEmail) {
         User user = findUserByEmail(authenticatedEmail);
         UserNote userNote = findUserNoteByNoteId(id);
         noteValidator.validateOwnership(userNote.getUser().getId(), user.getId());
 
         Note note = userNote.getNote();
-        note.setName(dto.getName());
-        note.setDescription(dto.getDescription());
-        note.setNote(dto.getNote());
+        note.setName(name);
+        note.setDescription(description);
+        note.setNote(noteContent);
 
-        return noteRepository.save(note);
+        return note;
     }
 
     @Override
-    public void deleteNoteById(Long id, String authenticatedEmail) {
+    public void validateNoteDeletion(Long id, String authenticatedEmail) {
         User user = findUserByEmail(authenticatedEmail);
         UserNote userNote = findUserNoteByNoteId(id);
         noteValidator.validateOwnership(userNote.getUser().getId(), user.getId());
-
-        userNoteRepository.deleteByNoteId(id);
-        noteRepository.deleteById(id);
     }
 
     @Override

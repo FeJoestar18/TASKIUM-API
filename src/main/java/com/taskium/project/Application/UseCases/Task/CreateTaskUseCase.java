@@ -48,7 +48,18 @@ public class CreateTaskUseCase {
         var createdBy = userRepository.findById(dto.getCreatedById())
                 .orElseThrow(() -> new UserNotFoundException(dto.getCreatedById()));
 
-        var task = taskService.createTask(dto, status, category, createdBy);
+        var task = taskService.createTask(
+                dto.getName(), 
+                dto.getDescription(), 
+                dto.getDetails(), 
+                dto.getHours(), 
+                dto.getDueDate(), 
+                dto.getPriority(), 
+                status, 
+                category, 
+                createdBy
+        );
+
         task = taskRepository.save(task);
 
         return TaskResponseDTO.from(task);

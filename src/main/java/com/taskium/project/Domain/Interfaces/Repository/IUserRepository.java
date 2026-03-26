@@ -9,6 +9,9 @@ public interface IUserRepository {
     boolean existsByEmail(String email);
     boolean existsByCpf(String cpf);
     boolean existsByPhoneNumber(String phone);
+    boolean existsByEmailAndIdNot(String email, Long id);
+    boolean existsByCpfAndIdNot(String cpf, Long id);
+    boolean existsByPhoneNumberAndIdNot(String phone, Long id);
     Optional<User> findByEmail(String email);
     Optional<User>  findById(Long id);
     User save(User user);

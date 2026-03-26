@@ -33,6 +33,21 @@ public class UserRepositoryImpl implements IUserRepository {
     }
 
     @Override
+    public boolean existsByEmailAndIdNot(String email, Long id) {
+        return userJpaRepository.existsByEmailAndIdNot(email, id);
+    }
+
+    @Override
+    public boolean existsByCpfAndIdNot(String cpf, Long id) {
+        return userJpaRepository.existsByCpfAndIdNot(cpf, id);
+    }
+
+    @Override
+    public boolean existsByPhoneNumberAndIdNot(String phone, Long id) {
+        return userJpaRepository.existsByPhoneNumberAndIdNot(phone, id);
+    }
+
+    @Override
     public Optional<User> findByEmail(String email) {
         return userJpaRepository.findByEmail(email);
     }

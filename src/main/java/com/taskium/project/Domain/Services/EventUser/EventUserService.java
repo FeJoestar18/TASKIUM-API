@@ -1,7 +1,5 @@
 package com.taskium.project.Domain.Services.EventUser;
 
-import com.taskium.project.Application.DTO.EventUser.AddUserToEventRequestDTO;
-import com.taskium.project.Application.DTO.EventUser.UpdateParticipationStatusDTO;
 import com.taskium.project.Domain.Common.Exceptions.Event.EventNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Event.EventUserNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.Event.NoEventsFoundException;
@@ -43,49 +41,45 @@ public class EventUserService implements IEventUserService {
     }
 
     @Override
-    public EventUser addUserToEvent(Long eventId, AddUserToEventRequestDTO dto, String authenticatedEmail) {
+    public EventUser addUserToEvent(Long eventId, Long targetUserId, Long participationStatusId, String authenticatedEmail) {
         User authenticatedUser = findUserByEmail(authenticatedEmail);
         Event event = findEventById(eventId);
-        validateCanManageEventUser(event, dto.getUserId(), authenticatedUser.getId());
-        User targetUser = findUserById(dto.getUserId());
-        ParticipationStatus participationStatus = findParticipationStatusById(dto.getParticipationStatusId());
+        validateCanManageEventUser(event, targetUserId, authenticatedUser.getId());
+        User targetUser = findUserById(targetUserId);
+        ParticipationStatus participationStatus = findParticipationStatusById(participationStatusId);
 
         if (eventUserRepository.existsByUserIdAndEventId(targetUser.getId(), event.getId())) {
             throw new UserAlreadyInEventException(targetUser.getId(), event.getId());
         }
 
-        EventUser eventUser = EventUser.builder()
+        return EventUser.builder()
                 .event(event)
                 .user(targetUser)
                 .participationStatus(participationStatus)
                 .build();
-
-        return eventUserRepository.save(eventUser);
     }
 
     @Override
-    public void removeUserFromEvent(Long eventId, Long userId, String authenticatedEmail) {
+    public EventUser validateAndGetEventUserForRemoval(Long eventId, Long userId, String authenticatedEmail) {
+        User authenticatedUser = findUserByEmail(authenticatedEmail);
+        Event event = findEventById(eventId);
+        validateCanManageEventUser(event, userId, authenticatedUser.getId());
+
+        return eventUserRepository.findByEventIdAndUserId(eventId, userId)
+                .orElseThrow(() -> new EventUserNotFoundException(eventId, userId));
+    }
+
+    @Override
+    public EventUser updateParticipationStatus(Long eventId, Long userId, Long participationStatusId, String authenticatedEmail) {
         User authenticatedUser = findUserByEmail(authenticatedEmail);
         Event event = findEventById(eventId);
         validateCanManageEventUser(event, userId, authenticatedUser.getId());
 
         EventUser eventUser = eventUserRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(() -> new EventUserNotFoundException(eventId, userId));
-
-        eventUserRepository.delete(eventUser);
-    }
-
-    @Override
-    public EventUser updateParticipationStatus(Long eventId, Long userId, UpdateParticipationStatusDTO dto, String authenticatedEmail) {
-        User authenticatedUser = findUserByEmail(authenticatedEmail);
-        Event event = findEventById(eventId);
-        validateCanManageEventUser(event, userId, authenticatedUser.getId());
-
-        EventUser eventUser = eventUserRepository.findByEventIdAndUserId(eventId, userId)
-                .orElseThrow(() -> new EventUserNotFoundException(eventId, userId));
-        ParticipationStatus participationStatus = findParticipationStatusById(dto.getParticipationStatusId());
+        ParticipationStatus participationStatus = findParticipationStatusById(participationStatusId);
         eventUser.setParticipationStatus(participationStatus);
-        return eventUserRepository.save(eventUser);
+        return eventUser;
     }
 
     @Override

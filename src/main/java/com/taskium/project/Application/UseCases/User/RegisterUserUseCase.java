@@ -39,15 +39,27 @@ public class RegisterUserUseCase {
     @Transactional
     public UserResponseDTO execute(UserRequestDTO dto){
 
-        userValidator.validateUserUniqueness(dto);
+        userValidator.validateUserUniqueness(dto.getEmail(), dto.getCpf(), dto.getPhoneNumber(), null);
 
-        var user = userService.createUser(dto);
+        var user = userService.createUser(
+                dto.getName(),
+                dto.getEmail(),
+                dto.getCpf(),
+                dto.getPhoneNumber(),
+                dto.getPassword()
+        );
         user = userRepository.save(user);
 
         var role = roleRepository.findByName(dto.getRoleName())
                 .orElseThrow(RoleNotFoundException::new);
 
-        var userDetails = userService.createUserDetails(user, role, dto);
+        var userDetails = userService.createUserDetails(
+                user, 
+                role, 
+                dto.getBirthday(), 
+                dto.getReservedEmail(), 
+                dto.getReservedPhoneNumber()
+        );
 
         userDetailsRepository.save(userDetails);
 
