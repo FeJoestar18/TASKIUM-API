@@ -18,16 +18,14 @@ public class RefreshTokenUseCase {
     }
 
     public LoginResponseDTO execute(RefreshTokenRequestDTO dto) {
-        // Validate the existing refresh token
+
         RefreshToken existingRefreshToken = tokenGenerateService.validateRefreshToken(dto.getRefreshToken());
 
         User user = existingRefreshToken.getUser();
         AuthenticatedUserDetails authenticatedUser = new AuthenticatedUserDetails(user);
 
-        // Generate new access token
         String newAccessToken = tokenGenerateService.generateToken(authenticatedUser);
 
-        // Generate new refresh token (rotates old one)
         RefreshToken newRefreshToken = tokenGenerateService.generateRefreshToken(user);
 
         return new LoginResponseDTO(

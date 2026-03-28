@@ -41,6 +41,15 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = recoverToken(request);
 
         if (token != null) {
+
+//            System.out.println("[SecurityFilter] Token recebido: " + token);
+
+            if (tokenService.isAccessTokenBlacklisted(token)) {
+//                System.out.println("[SecurityFilter] Token está na blacklist!");
+                writeErrorResponse(response, request, HttpStatus.UNAUTHORIZED, "Token inválido", "Access token revogado.");
+                return;
+            }
+
             try {
                 var login = tokenService.validateToken(token);
                 UserDetails user = authService.loadUserByUsername(login);

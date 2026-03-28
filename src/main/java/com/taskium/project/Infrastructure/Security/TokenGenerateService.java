@@ -1,8 +1,10 @@
 package com.taskium.project.Infrastructure.Security;
 
 import com.taskium.project.Domain.Common.Exceptions.Auth.InvalidTokenException;
+import com.taskium.project.Domain.Entity.AccessTokenBlacklist;
 import com.taskium.project.Domain.Entity.RefreshToken;
 import com.taskium.project.Domain.Entity.User;
+import com.taskium.project.Domain.Interfaces.Repository.IAccessTokenBlacklistRepository;
 import com.taskium.project.Domain.Interfaces.Repository.IRefreshTokenRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -12,25 +14,32 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.util.UUID;
 
 @Service
 public class TokenGenerateService {
 
+    private static final Logger logger = LoggerFactory.getLogger(TokenGenerateService.class);
+
     @Value("${api.security.jwt.secret}")
     private String secretKey;
 
-    @Value("${api.security.jwt.access-expiration:36000}")
+    @Value("${api.security.jwt.access-expiration:3600}")
     private long accessExpirationSeconds;
 
     @Value("${api.security.jwt.refresh-expiration:604800}")
     private long refreshExpirationSeconds;
 
     private final IRefreshTokenRepository refreshTokenRepository;
+    private final IAccessTokenBlacklistRepository accessTokenBlacklistRepository;
 
-    public TokenGenerateService(IRefreshTokenRepository refreshTokenRepository) {
+    public TokenGenerateService(IRefreshTokenRepository refreshTokenRepository, IAccessTokenBlacklistRepository accessTokenBlacklistRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
+        this.accessTokenBlacklistRepository = accessTokenBlacklistRepository;
     }
 
     public String generateToken(AuthenticatedUserDetails authenticatedUser) {
@@ -68,7 +77,7 @@ public class TokenGenerateService {
 
     @Transactional
     public RefreshToken generateRefreshToken(User user) {
-        // Revoke all existing refresh tokens for this user
+
         refreshTokenRepository.revokeAllByUserId(user.getId());
 
         RefreshToken refreshToken = RefreshToken.builder()
@@ -104,7 +113,27 @@ public class TokenGenerateService {
         refreshTokenRepository.save(refreshToken);
     }
 
+    @Transactional
+    public void blacklistAccessToken(String token, Instant expiresAt) {
+        logger.info("Blacklisting access token: {} expira em {}", token, expiresAt);
+        AccessTokenBlacklist blacklist = AccessTokenBlacklist.builder()
+                .token(token)
+                .expiresAt(expiresAt)
+                .build();
+        accessTokenBlacklistRepository.save(blacklist);
+    }
+
+    public boolean isAccessTokenBlacklisted(String token) {
+        boolean blacklisted = accessTokenBlacklistRepository.findByToken(token).isPresent();
+        logger.info("Verificando blacklist para token: {} - Blacklisted? {}", token, blacklisted);
+        return blacklisted;
+    }
+
     public long getAccessExpirationSeconds() {
         return accessExpirationSeconds;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
     }
 }
