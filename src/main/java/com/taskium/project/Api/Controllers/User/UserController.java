@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/complete-register")
-    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    @PreAuthorize("hasAuthority('UPDATE_USER') or hasAuthority('ADMIN')")
     public ResponseEntity<UserCompleteResponseDTO> completeRegister(
             @PathVariable Long id,
             @Valid @RequestBody CompleteRegisterRequestDTO dto,

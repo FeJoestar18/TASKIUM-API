@@ -3,9 +3,9 @@ package com.taskium.project.Application.UseCases.User;
 import com.taskium.project.Application.DTO.User.*;
 import com.taskium.project.Domain.Common.Exceptions.Auth.UnauthorizedActionException;
 import com.taskium.project.Domain.Common.Exceptions.Role.RoleNotFoundException;
-import com.taskium.project.Domain.Common.Exceptions.Status.StatusNotFoundException;
 import com.taskium.project.Domain.Common.Exceptions.User.UserNotFoundException;
 import com.taskium.project.Domain.Entity.*;
+import com.taskium.project.Domain.Enums.RoleName;
 import com.taskium.project.Domain.Interfaces.Repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,20 +20,20 @@ public class CompleteRegisterUseCase {
     private final IUserDetailsRepository userDetailsRepository;
     private final IUserAddressRepository userAddressRepository;
     private final IRoleRepository roleRepository;
-    private final IStatusRepository statusRepository;
+    private final IParticipationStatusRepository participationStatusRepository;
 
     public CompleteRegisterUseCase(
             IUserRepository userRepository,
             IUserDetailsRepository userDetailsRepository,
             IUserAddressRepository userAddressRepository,
             IRoleRepository roleRepository,
-            IStatusRepository statusRepository
+            IParticipationStatusRepository participationStatusRepository
     ) {
         this.userRepository = userRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.userAddressRepository = userAddressRepository;
         this.roleRepository = roleRepository;
-        this.statusRepository = statusRepository;
+        this.participationStatusRepository = participationStatusRepository;
     }
 
     @Transactional
@@ -42,23 +42,25 @@ public class CompleteRegisterUseCase {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        // Validate ownership: authenticated user must be the owner
-        if (!user.getEmail().equals(authenticatedEmail)) {
+        // Permite se for o próprio usuário OU se o autenticado for ADMIN
+        User authenticatedUser = userRepository.findByEmail(authenticatedEmail)
+                .orElseThrow(() -> new UserNotFoundException("Usuário autenticado não encontrado."));
+        boolean isAdmin = authenticatedUser.getUserDetail() != null &&
+                authenticatedUser.getUserDetail().getRole() != null &&
+                authenticatedUser.getUserDetail().getRole().getName() == RoleName.ADMIN;
+        if (!user.getEmail().equals(authenticatedEmail) && !isAdmin) {
             throw new UnauthorizedActionException();
         }
 
-        // Process details (create or update)
         UserDetails userDetails = null;
         if (dto.getDetails() != null) {
             userDetails = processDetails(user, dto.getDetails());
         }
 
-        // Process address (create new)
         if (dto.getAddress() != null) {
             processAddress(user, dto.getAddress());
         }
 
-        // Build response
         List<UserAddress> addresses = userAddressRepository.findByUserId(user.getId());
         UserDetails currentDetails = userDetails != null
                 ? userDetails
@@ -78,8 +80,11 @@ public class CompleteRegisterUseCase {
         Role role = roleRepository.findById(detailsDto.getRoleId())
                 .orElseThrow(() -> new RoleNotFoundException("Role não encontrada com ID: " + detailsDto.getRoleId()));
 
-        Status status = statusRepository.findById(detailsDto.getStatusId())
-                .orElseThrow(() -> new StatusNotFoundException(detailsDto.getStatusId()));
+        ParticipationStatus participationStatus = null;
+        if (detailsDto.getParticipantStatusId() != null) {
+            participationStatus = participationStatusRepository.findById(detailsDto.getParticipantStatusId())
+                .orElseThrow(() -> new RuntimeException("ParticipationStatus não encontrado com ID: " + detailsDto.getParticipantStatusId()));
+        }
 
         UserDetails userDetails = userDetailsRepository.findByUserId(user.getId())
                 .orElse(null);
@@ -90,7 +95,7 @@ public class CompleteRegisterUseCase {
         }
 
         userDetails.setRole(role);
-        userDetails.setStatus(status);
+        userDetails.setParticipationStatus(participationStatus);
         userDetails.setBirthday(detailsDto.getBirthday());
         userDetails.setReservedEmail(detailsDto.getReservedEmail());
         userDetails.setReservedPhoneNumber(detailsDto.getReservedPhoneNumber());

@@ -14,7 +14,7 @@ public class DetailsResponseDTO {
     private final String reservedPhoneNumber;
     private final String reservedEmail;
     private final String roleName;
-    private final String statusName;
+    private final String participationStatusName;
 
     public static DetailsResponseDTO from(UserDetails details) {
         return DetailsResponseDTO.builder()
@@ -23,7 +23,7 @@ public class DetailsResponseDTO {
                 .reservedPhoneNumber(details.getReservedPhoneNumber())
                 .reservedEmail(details.getReservedEmail())
                 .roleName(details.getRole() != null ? details.getRole().getName().name() : null)
-                .statusName(details.getStatus() != null ? details.getStatus().getName() : null)
+                .participationStatusName(details.getParticipationStatus() != null ? details.getParticipationStatus().getName() : null)
                 .build();
     }
 }

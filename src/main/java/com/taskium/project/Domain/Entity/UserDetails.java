@@ -34,6 +34,6 @@ public class UserDetails extends BaseEntity {
     private Role role;
 
     @ManyToOne
-    @JoinColumn(name = "status_id")
-    private Status status;
+    @JoinColumn(name = "participant_status_id")
+    private ParticipationStatus participationStatus;
 }

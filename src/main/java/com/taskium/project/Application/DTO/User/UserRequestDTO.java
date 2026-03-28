@@ -36,6 +36,8 @@ public class UserRequestDTO {
     @Pattern(regexp = "\\(\\d{2}\\) \\d{4,5}-\\d{4}", message = "Telefone inválido, formato esperado: (00) 00000-0000")
     private String phoneNumber;
 
+
+
     @NotNull(message = "Data de nascimento é obrigatória")
     @Past(message = "Data de nascimento deve ser no passado")
     private LocalDate birthday;

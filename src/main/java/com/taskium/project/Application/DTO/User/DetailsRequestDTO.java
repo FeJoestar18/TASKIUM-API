@@ -24,7 +24,7 @@ public class DetailsRequestDTO {
     @NotNull(message = "Role é obrigatória")
     private Long roleId;
 
-    @NotNull(message = "Status é obrigatório")
-    private Long statusId;
+    @NotNull(message = "Status de participação é obrigatório")
+    private Long participantStatusId;
 }
 
