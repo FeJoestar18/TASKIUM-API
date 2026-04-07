@@ -41,6 +41,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -52,222 +54,227 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    //  VALIDATION (400)
+        // VALIDATION (400)
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDTO> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ErrorResponseDTO> handleMethodArgumentNotValid(
+                        MethodArgumentNotValidException ex,
+                        HttpServletRequest request) {
 
-        Map<String, String> fieldErrors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .collect(Collectors.toMap(
-                        fieldError -> fieldError.getField(),
-                        fieldError -> fieldError.getDefaultMessage(),
-                        (current, replacement) -> current
-                ));
+                Map<String, String> fieldErrors = ex.getBindingResult()
+                                .getFieldErrors()
+                                .stream()
+                                .collect(Collectors.toMap(
+                                                fieldError -> fieldError.getField(),
+                                                fieldError -> fieldError.getDefaultMessage(),
+                                                (current, replacement) -> current));
 
-        return buildErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                "Validação falhou",
-                "Campos inválidos",
-                request.getRequestURI(),
-                fieldErrors
-        );
-    }
+                return buildErrorResponse(
+                                HttpStatus.BAD_REQUEST,
+                                "Validação falhou",
+                                "Campos inválidos",
+                                request.getRequestURI(),
+                                fieldErrors);
+        }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponseDTO> handleConstraintViolation(
-            ConstraintViolationException ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler(ConstraintViolationException.class)
+        public ResponseEntity<ErrorResponseDTO> handleConstraintViolation(
+                        ConstraintViolationException ex,
+                        HttpServletRequest request) {
 
-        Map<String, String> violations = ex.getConstraintViolations()
-                .stream()
-                .collect(Collectors.toMap(
-                        violation -> violation.getPropertyPath().toString(),
-                        violation -> violation.getMessage(),
-                        (current, replacement) -> current
-                ));
+                Map<String, String> violations = ex.getConstraintViolations()
+                                .stream()
+                                .collect(Collectors.toMap(
+                                                violation -> violation.getPropertyPath().toString(),
+                                                violation -> violation.getMessage(),
+                                                (current, replacement) -> current));
 
-        return buildErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                "Violação de constraint",
-                ex.getMessage(),
-                request.getRequestURI(),
-                violations
-        );
-    }
+                return buildErrorResponse(
+                                HttpStatus.BAD_REQUEST,
+                                "Violação de constraint",
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                violations);
+        }
 
-    //  UNAUTHORIZED (401)
+        @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+        public ResponseEntity<ErrorResponseDTO> handleMediaTypeNotSupported(
+                        HttpMediaTypeNotSupportedException ex,
+                        HttpServletRequest request) {
+                String message = String.format("Content-Type '%s' não é suportado. Use application/json.",
+                                ex.getContentType());
+                return buildErrorResponse(
+                                HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                                "Tipo de mídia não suportado",
+                                message,
+                                request.getRequestURI(),
+                                Map.of());
+        }
 
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ErrorResponseDTO> handleInvalidToken(
-            InvalidTokenException ex,
-            HttpServletRequest request
-    ) {
-        return buildErrorResponse(
-                HttpStatus.UNAUTHORIZED,
-                "Token inválido",
-                ex.getMessage(),
-                request.getRequestURI(),
-                Map.of()
-        );
-    }
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ErrorResponseDTO> handleMessageNotReadable(
+                        HttpMessageNotReadableException ex,
+                        HttpServletRequest request) {
+                return buildErrorResponse(
+                                HttpStatus.BAD_REQUEST,
+                                "Requisição inválida",
+                                "O corpo da requisição está inválido ou ausente.",
+                                request.getRequestURI(),
+                                Map.of());
+        }
 
-    //  FORBIDDEN (403)
+        // UNAUTHORIZED (401)
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponseDTO> handleAccessDenied(
-            AccessDeniedException ex,
-            HttpServletRequest request
-    ) {
-        return buildErrorResponse(
-                HttpStatus.FORBIDDEN,
-                "Acesso negado",
-                ex.getMessage(),
-                request.getRequestURI(),
-                Map.of()
-        );
-    }
+        @ExceptionHandler(InvalidTokenException.class)
+        public ResponseEntity<ErrorResponseDTO> handleInvalidToken(
+                        InvalidTokenException ex,
+                        HttpServletRequest request) {
+                return buildErrorResponse(
+                                HttpStatus.UNAUTHORIZED,
+                                "Token inválido",
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                Map.of());
+        }
 
-    //  CONFLICT (409)
+        // FORBIDDEN (403)
 
-    @ExceptionHandler({
-            EmailAlreadyExistsException.class,
-            CpflAlreadyExistsException.class,
-            PhoneNumberAlreadyExistsException.class,
-            RegulationAlreadyAcceptedException.class,
-            UserAlreadyInEventException.class
-    })
-    public ResponseEntity<ErrorResponseDTO> handleConflict(
-            RuntimeException ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<ErrorResponseDTO> handleAccessDenied(
+                        AccessDeniedException ex,
+                        HttpServletRequest request) {
+                return buildErrorResponse(
+                                HttpStatus.FORBIDDEN,
+                                "Acesso negado",
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                Map.of());
+        }
 
-        return buildErrorResponse(
-                HttpStatus.CONFLICT,
-                "Conflito de dados",
-                ex.getMessage(),
-                request.getRequestURI(),
-                Map.of()
-        );
-    }
+        // CONFLICT (409)
 
-    //  NOT FOUND (404)
-    @ExceptionHandler({
-            RoleNotFoundException.class,
-            UserNotFoundException.class,
-            NoUsersFoundException.class,
-            RegulationNotFoundException.class,
-            NoRegulationsFoundException.class,
-            NoAcceptedRegulationsFoundException.class,
-            EventNotFoundException.class,
-            NoEventsFoundException.class,
-            EventTypeNotFoundException.class,
-            NoEventTypesFoundException.class,
-            ParticipationStatusNotFoundException.class,
-            NoParticipationStatusesFoundException.class,
-            EventUserNotFoundException.class,
-            TaskNotFoundException.class,
-            NoTasksFoundException.class,
-            TaskCategoryNotFoundException.class,
-            NoTaskCategoriesFoundException.class,
-            TaskStatusNotFoundException.class,
-            NoTaskStatusesFoundException.class,
-            NoteNotFoundException.class,
-            NoNotesFoundException.class,
-            CommentNotFoundException.class,
-            NoCommentsFoundException.class,
-            StatusNotFoundException.class
-    })
-    public ResponseEntity<ErrorResponseDTO> handleNotFound(
-            RuntimeException ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler({
+                        EmailAlreadyExistsException.class,
+                        CpflAlreadyExistsException.class,
+                        PhoneNumberAlreadyExistsException.class,
+                        RegulationAlreadyAcceptedException.class,
+                        UserAlreadyInEventException.class
+        })
+        public ResponseEntity<ErrorResponseDTO> handleConflict(
+                        RuntimeException ex,
+                        HttpServletRequest request) {
 
-        return buildErrorResponse(
-                HttpStatus.NOT_FOUND,
-                "Registro não encontrado",
-                ex.getMessage(),
-                request.getRequestURI(),
-                Map.of()
-        );
-    }
+                return buildErrorResponse(
+                                HttpStatus.CONFLICT,
+                                "Conflito de dados",
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                Map.of());
+        }
 
-    @ExceptionHandler({
-            UnauthorizedActionException.class,
-            UnauthorizedNoteAccessException.class,
-            UnauthorizedEventActionException.class
-    })
-    public ResponseEntity<ErrorResponseDTO> handleForbidden(
-            RuntimeException ex,
-            HttpServletRequest request
-    ) {
-        return buildErrorResponse(
-                HttpStatus.FORBIDDEN,
-                "Acesso negado",
-                ex.getMessage(),
-                request.getRequestURI(),
-                Map.of()
-        );
-    }
+        // NOT FOUND (404)
+        @ExceptionHandler({
+                        RoleNotFoundException.class,
+                        UserNotFoundException.class,
+                        NoUsersFoundException.class,
+                        RegulationNotFoundException.class,
+                        NoRegulationsFoundException.class,
+                        NoAcceptedRegulationsFoundException.class,
+                        EventNotFoundException.class,
+                        NoEventsFoundException.class,
+                        EventTypeNotFoundException.class,
+                        NoEventTypesFoundException.class,
+                        ParticipationStatusNotFoundException.class,
+                        NoParticipationStatusesFoundException.class,
+                        EventUserNotFoundException.class,
+                        TaskNotFoundException.class,
+                        NoTasksFoundException.class,
+                        TaskCategoryNotFoundException.class,
+                        NoTaskCategoriesFoundException.class,
+                        TaskStatusNotFoundException.class,
+                        NoTaskStatusesFoundException.class,
+                        NoteNotFoundException.class,
+                        NoNotesFoundException.class,
+                        CommentNotFoundException.class,
+                        NoCommentsFoundException.class,
+                        StatusNotFoundException.class
+        })
+        public ResponseEntity<ErrorResponseDTO> handleNotFound(
+                        RuntimeException ex,
+                        HttpServletRequest request) {
 
-    @ExceptionHandler({
-            InactiveRegulationException.class,
-            EventDateInvalidException.class
-    })
-    public ResponseEntity<ErrorResponseDTO> handleBusinessRule(
-            RuntimeException ex,
-            HttpServletRequest request
-    ) {
-        return buildErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                "Regra de negócio inválida",
-                ex.getMessage(),
-                request.getRequestURI(),
-                Map.of()
-        );
-    }
+                return buildErrorResponse(
+                                HttpStatus.NOT_FOUND,
+                                "Registro não encontrado",
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                Map.of());
+        }
 
-    //  GENERIC (500)
+        @ExceptionHandler({
+                        UnauthorizedActionException.class,
+                        UnauthorizedNoteAccessException.class,
+                        UnauthorizedEventActionException.class
+        })
+        public ResponseEntity<ErrorResponseDTO> handleForbidden(
+                        RuntimeException ex,
+                        HttpServletRequest request) {
+                return buildErrorResponse(
+                                HttpStatus.FORBIDDEN,
+                                "Acesso negado",
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                Map.of());
+        }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDTO> handleGeneric(
-            Exception ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler({
+                        InactiveRegulationException.class,
+                        EventDateInvalidException.class
+        })
+        public ResponseEntity<ErrorResponseDTO> handleBusinessRule(
+                        RuntimeException ex,
+                        HttpServletRequest request) {
+                return buildErrorResponse(
+                                HttpStatus.BAD_REQUEST,
+                                "Regra de negócio inválida",
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                Map.of());
+        }
 
-        return buildErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Erro interno",
-                ex.getMessage(),
-                request.getRequestURI(),
-                Map.of()
-        );
-    }
+        // GENERIC (500)
 
-    // BUILDER
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponseDTO> handleGeneric(
+                        Exception ex,
+                        HttpServletRequest request) {
 
-    private ResponseEntity<ErrorResponseDTO> buildErrorResponse(
-            HttpStatus status,
-            String error,
-            String message,
-            String path,
-            Map<String, String> details
-    ) {
+                return buildErrorResponse(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Erro interno",
+                                ex.getMessage(),
+                                request.getRequestURI(),
+                                Map.of());
+        }
 
-        ErrorResponseDTO body = ErrorResponseDTO.builder()
-                .timestamp(Instant.now())
-                .status(status.value())
-                .error(error)
-                .message(message)
-                .path(path)
-                .details(details)
-                .build();
+        // BUILDER
 
-        return ResponseEntity.status(status).body(body);
-    }
+        private ResponseEntity<ErrorResponseDTO> buildErrorResponse(
+                        HttpStatus status,
+                        String error,
+                        String message,
+                        String path,
+                        Map<String, String> details) {
+
+                ErrorResponseDTO body = ErrorResponseDTO.builder()
+                                .timestamp(Instant.now())
+                                .status(status.value())
+                                .error(error)
+                                .message(message)
+                                .path(path)
+                                .details(details)
+                                .build();
+
+                return ResponseEntity.status(status).body(body);
+        }
 }
